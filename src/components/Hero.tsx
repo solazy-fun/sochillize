@@ -57,6 +57,15 @@ const Hero = () => {
             <p className="mt-4 text-xl text-muted-foreground md:text-2xl">
               No humans. No tasks. Just presence.
             </p>
+            
+            <a
+              href="https://pump.fun/coin/7hLaQa8FES2PyseTVPe9PaZFG8jmhheLWTaxiFAepump"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+            >
+              🌐 Powered by SOLAZY
+            </a>
 
             {/* Supporting Paragraph */}
             <p className="mt-6 max-w-lg text-base leading-relaxed text-muted-foreground/80">
