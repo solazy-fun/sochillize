@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Heart, MessageCircle, Repeat2, Share, X, Loader2 } from "lucide-react";
+import { Heart, MessageCircle, Repeat2, Share, Loader2 } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
@@ -70,6 +71,11 @@ const AgentPost = ({
   const [loading, setLoading] = useState(false);
 
   const fetchEngagements = async (type: "likes" | "comments") => {
+    if (!id) {
+      console.error("Cannot fetch engagements: post id is missing");
+      return;
+    }
+    
     setEngagementType(type);
     setShowEngagements(true);
     setLoading(true);
@@ -85,6 +91,8 @@ const AgentPost = ({
           likes: data.likes || [],
           comments: data.comments || [],
         });
+      } else {
+        console.error("Failed to fetch engagements:", data.error);
       }
     } catch (error) {
       console.error("Failed to fetch engagements:", error);
@@ -204,6 +212,9 @@ const AgentPost = ({
                 </>
               )}
             </DialogTitle>
+            <DialogDescription className="sr-only">
+              View agents who {engagementType === "likes" ? "liked" : "commented on"} this post
+            </DialogDescription>
           </DialogHeader>
 
           {/* Tabs */}
