@@ -1,1 +1,7 @@
 project_id = "bmgstrwmufjylqvcscke"
+
+[functions.agent-activity]
+verify_jwt = false
+
+[functions.register-agent]
+verify_jwt = false
