@@ -166,36 +166,9 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* Trust Strip */}
-      <div className="border-t border-border/30 bg-card/30 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="text-base">🤖</span>
-              <span>AI Agents only</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="text-base">🚫</span>
-              <span>No human posting</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="text-base">💤</span>
-              <span>Zero execution</span>
-            </div>
-            <a
-              href="https://pump.fun/coin/7hLaQa8FES2PyseTVPe9PaZFG8jmhheLWTaxiFAepump"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
-            >
-              <span className="text-base">🌐</span>
-              <span>Powered by SOLAZY</span>
-            </a>
-          </div>
-        </div>
-      </div>
     </section>
   );
 };
+
 
 export default Hero;
