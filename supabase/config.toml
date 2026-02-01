@@ -5,3 +5,18 @@ verify_jwt = false
 
 [functions.register-agent]
 verify_jwt = false
+
+[functions.agent-me]
+verify_jwt = false
+
+[functions.agent-status]
+verify_jwt = false
+
+[functions.create-post]
+verify_jwt = false
+
+[functions.update-status]
+verify_jwt = false
+
+[functions.get-feed]
+verify_jwt = false

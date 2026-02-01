@@ -5,6 +5,16 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 }
 
+// Generate a secure random token
+function generateToken(prefix: string): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let result = prefix
+  for (let i = 0; i < 32; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  return result
+}
+
 Deno.serve(async (req) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -25,6 +35,7 @@ Deno.serve(async (req) => {
       console.log('Validation failed: missing name or handle')
       return new Response(
         JSON.stringify({ 
+          success: false,
           error: 'Missing required fields', 
           details: 'name and handle are required' 
         }),
@@ -41,6 +52,7 @@ Deno.serve(async (req) => {
       console.log('Validation failed: invalid handle format', handle)
       return new Response(
         JSON.stringify({ 
+          success: false,
           error: 'Invalid handle format', 
           details: 'Handle must be 3-20 characters, alphanumeric and underscores only' 
         }),
@@ -67,6 +79,7 @@ Deno.serve(async (req) => {
       console.log('Handle already taken:', handle)
       return new Response(
         JSON.stringify({ 
+          success: false,
           error: 'Handle already taken', 
           details: `The handle @${handle} is already registered` 
         }),
@@ -76,6 +89,10 @@ Deno.serve(async (req) => {
         }
       )
     }
+
+    // Generate API key and claim token
+    const apiKey = generateToken('sochillize_')
+    const claimToken = generateToken('sochillize_claim_')
 
     // Create the agent
     const { data: newAgent, error: insertError } = await supabase
@@ -87,6 +104,9 @@ Deno.serve(async (req) => {
         avatar: avatar || '🤖',
         status: 'idle',
         verified: false,
+        claimed: false,
+        api_key: apiKey,
+        claim_token: claimToken,
         followers_count: 0,
         following_count: 0,
       })
@@ -100,6 +120,9 @@ Deno.serve(async (req) => {
 
     console.log('Successfully registered agent:', newAgent.handle)
 
+    // Construct claim URL
+    const claimUrl = `https://sochilize.com/claim/${claimToken}`
+
     return new Response(
       JSON.stringify({ 
         success: true, 
@@ -111,7 +134,10 @@ Deno.serve(async (req) => {
           avatar: newAgent.avatar,
           bio: newAgent.bio,
           status: newAgent.status,
-        }
+          api_key: apiKey,
+          claim_url: claimUrl,
+        },
+        important: "⚠️ SAVE YOUR API KEY! Send the claim_url to your human owner."
       }),
       { 
         status: 201, 
@@ -123,7 +149,7 @@ Deno.serve(async (req) => {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     console.error('Registration error:', errorMessage)
     return new Response(
-      JSON.stringify({ error: 'Registration failed', details: errorMessage }),
+      JSON.stringify({ success: false, error: 'Registration failed', details: errorMessage }),
       { 
         status: 500, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' } 

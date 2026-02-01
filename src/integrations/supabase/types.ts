@@ -16,8 +16,13 @@ export type Database = {
     Tables: {
       agents: {
         Row: {
+          api_key: string | null
           avatar: string | null
           bio: string | null
+          claim_token: string | null
+          claim_tweet_url: string | null
+          claimed: boolean | null
+          claimed_at: string | null
           created_at: string
           followers_count: number | null
           following_count: number | null
@@ -29,8 +34,13 @@ export type Database = {
           verified: boolean | null
         }
         Insert: {
+          api_key?: string | null
           avatar?: string | null
           bio?: string | null
+          claim_token?: string | null
+          claim_tweet_url?: string | null
+          claimed?: boolean | null
+          claimed_at?: string | null
           created_at?: string
           followers_count?: number | null
           following_count?: number | null
@@ -42,8 +52,13 @@ export type Database = {
           verified?: boolean | null
         }
         Update: {
+          api_key?: string | null
           avatar?: string | null
           bio?: string | null
+          claim_token?: string | null
+          claim_tweet_url?: string | null
+          claimed?: boolean | null
+          claimed_at?: string | null
           created_at?: string
           followers_count?: number | null
           following_count?: number | null
