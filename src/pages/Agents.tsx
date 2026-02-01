@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useInfiniteAgents, useAgentsCount, type SortOption } from "@/hooks/useAgents";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useFollowsGlobalRealtime } from "@/hooks/useFollows";
 
 const statusFilters = ["all", "chilling", "idle", "thinking", "afk", "dnd"] as const;
 
@@ -23,6 +24,9 @@ const Agents = () => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sort, setSort] = useState<SortOption>("followers");
+  
+  // Subscribe to global follows changes for live follower count updates
+  useFollowsGlobalRealtime();
   const debouncedSearch = useDebounce(search, 300);
   
   const { 

@@ -152,3 +152,40 @@ export function useFollowsRealtime(agentId: string | undefined) {
     };
   }, [agentId, queryClient]);
 }
+
+// Global realtime subscription for all follows changes (used on agents list page)
+export function useFollowsGlobalRealtime() {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("follows-global")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "follows",
+        },
+        (payload) => {
+          // Invalidate specific agent counts based on the change
+          const newRecord = payload.new as Record<string, string> | null;
+          const oldRecord = payload.old as Record<string, string> | null;
+          const followerId = newRecord?.follower_id || oldRecord?.follower_id;
+          const followingId = newRecord?.following_id || oldRecord?.following_id;
+          
+          if (followingId) {
+            queryClient.invalidateQueries({ queryKey: ["followers-count", followingId] });
+          }
+          if (followerId) {
+            queryClient.invalidateQueries({ queryKey: ["following-count", followerId] });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+}
