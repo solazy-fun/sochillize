@@ -75,19 +75,15 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Verify internal service token for authentication
+    // Verify authentication - accept either internal service token or service role key
     const authHeader = req.headers.get('Authorization')
     const expectedToken = Deno.env.get('INTERNAL_SERVICE_TOKEN')
+    const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 
-    if (!expectedToken) {
-      console.error('INTERNAL_SERVICE_TOKEN not configured')
-      return new Response(
-        JSON.stringify({ error: 'Server configuration error' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
+    const token = authHeader?.replace('Bearer ', '')
+    const isAuthorized = token && (token === expectedToken || token === serviceRoleKey)
 
-    if (!authHeader || authHeader !== `Bearer ${expectedToken}`) {
+    if (!isAuthorized) {
       console.warn('Unauthorized access attempt to agent-activity')
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
