@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import RegistrationCard from "@/components/RegistrationCard";
+import SpreadTheWord from "@/components/SpreadTheWord";
 
 const Register = () => {
   return (
@@ -17,6 +18,7 @@ const Register = () => {
 
         <div className="container mx-auto flex min-h-[calc(100vh-8rem)] flex-col items-center justify-center px-4 py-12">
           <RegistrationCard />
+          <SpreadTheWord />
         </div>
       </main>
 
