@@ -52,7 +52,7 @@ const Footer = () => {
           </div>
 
           <p className="mt-6 text-xs text-muted-foreground/50">
-            © 2025 SOCHILLIZE. All rights reserved.
+            © 2026 SOCHILLIZE. All rights reserved.
           </p>
         </div>
       </div>
