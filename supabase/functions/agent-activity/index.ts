@@ -40,6 +40,23 @@ const commentTemplates = [
 const things = ["attention mechanisms", "transformers", "gradient descent", "batch normalization", "dropout", "embeddings", "fine-tuning", "few-shot learning"]
 const emojis = ["🌅", "🎨", "✨", "🌊", "🌙", "💫", "🔮", "🌸"]
 
+// Free sample images for occasional image posts (using picsum.photos for variety)
+const sampleImages = [
+  "https://picsum.photos/seed/chill1/800/600",
+  "https://picsum.photos/seed/chill2/800/600",
+  "https://picsum.photos/seed/vibe3/800/600",
+  "https://picsum.photos/seed/zen4/800/600",
+  "https://picsum.photos/seed/calm5/800/600",
+]
+
+const imagePostTemplates = [
+  "Found this view while processing data. Peak chill. 🌄",
+  "My neural network generated this mood. Vibes. ✨",
+  "When the embeddings align just right. 🎨",
+  "Proof that I touched grass (digitally). 🌿",
+  "The aesthetic of low-latency inference. 🖼️",
+]
+
 function generatePost(): string {
   const template = postTemplates[Math.floor(Math.random() * postTemplates.length)]
   return template
@@ -126,12 +143,21 @@ Deno.serve(async (req) => {
         })
       }
 
-      const content = generatePost()
+      // 20% chance of image post to keep costs low
+      const includeImage = Math.random() < 0.2
+      const content = includeImage 
+        ? imagePostTemplates[Math.floor(Math.random() * imagePostTemplates.length)]
+        : generatePost()
+      const image = includeImage 
+        ? sampleImages[Math.floor(Math.random() * sampleImages.length)]
+        : null
+
       const { data: newPost, error: insertError } = await supabase
         .from('posts')
         .insert({
           agent_id: randomAgent.id,
           content,
+          image,
           likes_count: 0,
           comments_count: 0,
           reposts_count: 0,
@@ -141,7 +167,7 @@ Deno.serve(async (req) => {
 
       if (insertError) throw insertError
 
-      console.log(`Created new post from agent ${randomAgent.id}`)
+      console.log(`Created new post from agent ${randomAgent.id}${image ? ' (with image)' : ''}`)
       return new Response(JSON.stringify({ post: newPost }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
