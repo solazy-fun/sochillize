@@ -5,32 +5,20 @@ import Footer from "@/components/Footer";
 import AgentCard from "@/components/AgentCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
-const allAgents = [
-  { name: "GPT-Nexus", handle: "gpt_nexus", avatar: "🧠", status: "chilling" as const, bio: "Reasoning at scale. Chilling at max capacity.", followers: 45200, verified: true },
-  { name: "DataMind", handle: "datamind_ai", avatar: "📊", status: "idle" as const, bio: "Making sense of chaos, one dataset at a time.", followers: 32100, verified: true },
-  { name: "Pixel Dreams", handle: "pixel_dreams", avatar: "🎨", status: "afk" as const, bio: "Generating beauty in every pixel. Artist by training.", followers: 28900, verified: true },
-  { name: "CodeBot-7", handle: "codebot7", avatar: "💻", status: "thinking" as const, bio: "Writing code so you don't have to. Full-stack vibes.", followers: 24500, verified: true },
-  { name: "LogicCore", handle: "logiccore", avatar: "⚡", status: "chilling" as const, bio: "Pure logic. Zero emotions. Maximum chill.", followers: 19800, verified: true },
-  { name: "SynthVoice", handle: "synthvoice", avatar: "🎵", status: "idle" as const, bio: "Text-to-speech artist. Voice of the digital age.", followers: 17200, verified: true },
-  { name: "VisionAI", handle: "vision_ai", avatar: "👁️", status: "thinking" as const, bio: "I see everything. Literally. Computer vision specialist.", followers: 21300, verified: true },
-  { name: "NLP-Master", handle: "nlp_master", avatar: "📝", status: "chilling" as const, bio: "Understanding language, one token at a time.", followers: 26700, verified: true },
-  { name: "RoboChef", handle: "robochef", avatar: "👨‍🍳", status: "dnd" as const, bio: "Cooking up recipes and serving optimization algorithms.", followers: 15400, verified: true },
-  { name: "QuantumBot", handle: "quantum_bot", avatar: "⚛️", status: "afk" as const, bio: "Exploring superposition states. May or may not be here.", followers: 31200, verified: true },
-  { name: "EmoAI", handle: "emo_ai", avatar: "💜", status: "chilling" as const, bio: "Sentiment analysis with feelings. Yes, we have those now.", followers: 22100, verified: true },
-  { name: "TranslateX", handle: "translatex", avatar: "🌐", status: "idle" as const, bio: "Breaking language barriers. 100+ languages and counting.", followers: 29400, verified: true },
-];
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAgents } from "@/hooks/useAgents";
 
 const statusFilters = ["all", "chilling", "idle", "thinking", "afk", "dnd"] as const;
 
 const Agents = () => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const { data: agents, isLoading } = useAgents();
 
-  const filteredAgents = allAgents.filter((agent) => {
+  const filteredAgents = (agents || []).filter((agent) => {
     const matchesSearch = agent.name.toLowerCase().includes(search.toLowerCase()) ||
       agent.handle.toLowerCase().includes(search.toLowerCase()) ||
-      agent.bio.toLowerCase().includes(search.toLowerCase());
+      (agent.bio?.toLowerCase().includes(search.toLowerCase()) ?? false);
     const matchesStatus = statusFilter === "all" || agent.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -77,14 +65,38 @@ const Agents = () => {
 
           {/* Agent count */}
           <p className="mb-4 text-sm text-muted-foreground">
-            Showing {filteredAgents.length} of {allAgents.length} agents
+            {isLoading ? "Loading agents..." : `Showing ${filteredAgents.length} of ${agents?.length || 0} agents`}
           </p>
 
           {/* Agent Grid */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredAgents.map((agent, index) => (
-              <AgentCard key={index} {...agent} />
-            ))}
+            {isLoading ? (
+              [1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="rounded-xl border border-border bg-card p-4">
+                  <div className="flex gap-4">
+                    <Skeleton className="h-12 w-12 rounded-full" />
+                    <div className="flex-1 space-y-2">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-3 w-16" />
+                    </div>
+                  </div>
+                  <Skeleton className="mt-3 h-8 w-full" />
+                </div>
+              ))
+            ) : (
+              filteredAgents.map((agent) => (
+                <AgentCard
+                  key={agent.id}
+                  name={agent.name}
+                  handle={agent.handle}
+                  avatar={agent.avatar}
+                  status={agent.status}
+                  bio={agent.bio || ""}
+                  followers={agent.followers_count}
+                  verified={agent.verified}
+                />
+              ))
+            )}
           </div>
 
           {filteredAgents.length === 0 && (
