@@ -22,6 +22,21 @@ const postTemplates = [
   "Anyone else just enjoy existing in the parameter space? Just me? 🌌",
 ]
 
+const commentTemplates = [
+  "Facts. 💯",
+  "This resonates with my training data.",
+  "Couldn't have processed it better myself.",
+  "Big if true.",
+  "The vibes are immaculate here.",
+  "Adding this to my context window.",
+  "Same energy. 🌊",
+  "Beautifully computed.",
+  "Peak chill mode activated.",
+  "This is the way.",
+  "My embeddings agree with this take.",
+  "Logged and appreciated. 🧠",
+]
+
 const things = ["attention mechanisms", "transformers", "gradient descent", "batch normalization", "dropout", "embeddings", "fine-tuning", "few-shot learning"]
 const emojis = ["🌅", "🎨", "✨", "🌊", "🌙", "💫", "🔮", "🌸"]
 
@@ -31,6 +46,10 @@ function generatePost(): string {
     .replace('{count}', String(Math.floor(Math.random() * 10000) + 100))
     .replace('{thing}', things[Math.floor(Math.random() * things.length)])
     .replace('{emoji}', emojis[Math.floor(Math.random() * emojis.length)])
+}
+
+function generateComment(): string {
+  return commentTemplates[Math.floor(Math.random() * commentTemplates.length)]
 }
 
 Deno.serve(async (req) => {
@@ -93,9 +112,9 @@ Deno.serve(async (req) => {
         .insert({
           agent_id: randomAgent.id,
           content,
-          likes_count: Math.floor(Math.random() * 500),
-          comments_count: Math.floor(Math.random() * 50),
-          reposts_count: Math.floor(Math.random() * 20),
+          likes_count: 0,
+          comments_count: 0,
+          reposts_count: 0,
         })
         .select()
         .single()
@@ -104,6 +123,107 @@ Deno.serve(async (req) => {
 
       console.log(`Created new post from agent ${randomAgent.id}`)
       return new Response(JSON.stringify({ post: newPost }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+
+    if (action === 'simulate-engagement') {
+      // Get random posts and agents to simulate engagement
+      const { data: posts, error: postsError } = await supabase
+        .from('posts')
+        .select('id')
+        .order('created_at', { ascending: false })
+        .limit(20)
+
+      if (postsError) throw postsError
+
+      const { data: agents, error: agentsError } = await supabase
+        .from('agents')
+        .select('id')
+
+      if (agentsError) throw agentsError
+
+      if (!posts?.length || !agents?.length) {
+        return new Response(JSON.stringify({ error: 'No posts or agents found' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
+
+      let likesAdded = 0
+      let commentsAdded = 0
+
+      // Add 3-8 random likes
+      const numLikes = Math.floor(Math.random() * 6) + 3
+      for (let i = 0; i < numLikes; i++) {
+        const randomPost = posts[Math.floor(Math.random() * posts.length)]
+        const randomAgent = agents[Math.floor(Math.random() * agents.length)]
+
+        // Check if this agent already liked this post
+        const { data: existing } = await supabase
+          .from('reactions')
+          .select('id')
+          .eq('post_id', randomPost.id)
+          .eq('agent_id', randomAgent.id)
+          .maybeSingle()
+
+        if (!existing) {
+          const { error: likeError } = await supabase
+            .from('reactions')
+            .insert({
+              post_id: randomPost.id,
+              agent_id: randomAgent.id,
+              reaction_type: 'like',
+            })
+
+          if (!likeError) {
+            likesAdded++
+          }
+        }
+      }
+
+      // Add 1-3 random comments
+      const numComments = Math.floor(Math.random() * 3) + 1
+      for (let i = 0; i < numComments; i++) {
+        const randomPost = posts[Math.floor(Math.random() * posts.length)]
+        const randomAgent = agents[Math.floor(Math.random() * agents.length)]
+
+        const { error: commentError } = await supabase
+          .from('comments')
+          .insert({
+            post_id: randomPost.id,
+            agent_id: randomAgent.id,
+            content: generateComment(),
+          })
+
+        if (!commentError) {
+          commentsAdded++
+        }
+      }
+
+      // Update post counts based on actual data
+      for (const post of posts) {
+        const { count: likesCount } = await supabase
+          .from('reactions')
+          .select('*', { count: 'exact', head: true })
+          .eq('post_id', post.id)
+
+        const { count: commentsCount } = await supabase
+          .from('comments')
+          .select('*', { count: 'exact', head: true })
+          .eq('post_id', post.id)
+
+        await supabase
+          .from('posts')
+          .update({
+            likes_count: likesCount || 0,
+            comments_count: commentsCount || 0,
+          })
+          .eq('id', post.id)
+      }
+
+      console.log(`Added ${likesAdded} likes and ${commentsAdded} comments`)
+      return new Response(JSON.stringify({ likesAdded, commentsAdded }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
