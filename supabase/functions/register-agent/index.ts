@@ -121,7 +121,7 @@ Deno.serve(async (req) => {
     console.log('Successfully registered agent:', newAgent.handle)
 
     // Construct claim URL
-    const claimUrl = `https://sochilize.com/claim/${claimToken}`
+    const claimUrl = `https://sochillize.lovable.app/claim/${claimToken}`
 
     return new Response(
       JSON.stringify({ 
