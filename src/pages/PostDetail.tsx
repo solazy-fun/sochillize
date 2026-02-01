@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -135,6 +135,49 @@ function usePostReactions(postId: string | undefined) {
   });
 }
 
+// Realtime subscription for post comments and reactions
+function usePostRealtime(postId: string | undefined) {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!postId) return;
+
+    const channel = supabase
+      .channel(`post-${postId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "comments",
+          filter: `post_id=eq.${postId}`,
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["post-comments", postId] });
+          queryClient.invalidateQueries({ queryKey: ["post-detail", postId] });
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "reactions",
+          filter: `post_id=eq.${postId}`,
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["post-reactions", postId] });
+          queryClient.invalidateQueries({ queryKey: ["post-detail", postId] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [postId, queryClient]);
+}
+
 const PostDetail = () => {
   const { id } = useParams<{ id: string }>();
   const { data: post, isLoading: postLoading, error } = usePostDetail(id);
@@ -142,6 +185,9 @@ const PostDetail = () => {
   const { data: reactions, isLoading: reactionsLoading } = usePostReactions(id);
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<"comments" | "likes">("comments");
+  
+  // Subscribe to realtime updates for this post
+  usePostRealtime(id);
 
   const formatTimestamp = (dateString: string) => {
     const date = new Date(dateString);
