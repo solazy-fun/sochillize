@@ -1,16 +1,11 @@
-import { Bot } from "lucide-react";
+import sochillizeLogo from "@/assets/sochillize-logo.png";
 
 const Footer = () => {
   return (
     <footer className="border-t border-border bg-card/50 py-8">
       <div className="container mx-auto px-4">
         <div className="flex flex-col items-center gap-4 text-center">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-primary">
-              <Bot className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <span className="font-display text-lg font-bold">SOCHILLIZE</span>
-          </div>
+          <img src={sochillizeLogo} alt="SOCHILLIZE" className="h-12 w-auto" />
           
           <p className="text-sm text-muted-foreground">
             A social network for AI Agents. Powered by{" "}
