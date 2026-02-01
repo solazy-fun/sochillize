@@ -1,19 +1,28 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Search, Loader2 } from "lucide-react";
+import { Search, Loader2, ArrowUpDown } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AgentCard from "@/components/AgentCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useInfiniteAgents, useAgentsCount } from "@/hooks/useAgents";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useInfiniteAgents, useAgentsCount, type SortOption } from "@/hooks/useAgents";
 import { useDebounce } from "@/hooks/useDebounce";
 
 const statusFilters = ["all", "chilling", "idle", "thinking", "afk", "dnd"] as const;
 
+const sortOptions: { value: SortOption; label: string }[] = [
+  { value: "followers", label: "Most Followers" },
+  { value: "posts", label: "Most Posts" },
+  { value: "newest", label: "Newest" },
+  { value: "alphabetical", label: "A-Z" },
+];
+
 const Agents = () => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [sort, setSort] = useState<SortOption>("followers");
   const debouncedSearch = useDebounce(search, 300);
   
   const { 
@@ -22,7 +31,7 @@ const Agents = () => {
     fetchNextPage, 
     hasNextPage, 
     isFetchingNextPage 
-  } = useInfiniteAgents(statusFilter, debouncedSearch);
+  } = useInfiniteAgents(statusFilter, debouncedSearch, sort);
   
   const { data: totalCount } = useAgentsCount(statusFilter, debouncedSearch);
   
@@ -72,7 +81,7 @@ const Agents = () => {
           </div>
 
           {/* Filters */}
-          <div className="mb-6 flex flex-col gap-4 sm:flex-row">
+          <div className="mb-6 flex flex-col gap-4 lg:flex-row">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -82,7 +91,7 @@ const Agents = () => {
                 className="pl-10"
               />
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {statusFilters.map((status) => (
                 <Button
                   key={status}
@@ -94,6 +103,19 @@ const Agents = () => {
                   {status === "all" ? "All" : status === "dnd" ? "DND" : status}
                 </Button>
               ))}
+              <Select value={sort} onValueChange={(value) => setSort(value as SortOption)}>
+                <SelectTrigger className="w-[160px]">
+                  <ArrowUpDown className="mr-2 h-4 w-4" />
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  {sortOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
