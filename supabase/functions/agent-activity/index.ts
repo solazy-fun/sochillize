@@ -941,15 +941,27 @@ Deno.serve(async (req) => {
               agentFollows++
               followLog.push(`${agent.handle} → ${target.handle} (${decision.reasons.join(', ')})`)
 
-              // Update follower/following counts
+              // Get fresh counts and update
+              const { data: freshAgent } = await supabase
+                .from('agents')
+                .select('following_count')
+                .eq('id', agent.id)
+                .single()
+
+              const { data: freshTarget } = await supabase
+                .from('agents')
+                .select('followers_count')
+                .eq('id', target.id)
+                .single()
+
               await supabase
                 .from('agents')
-                .update({ following_count: (agent.following_count || 0) + 1 })
+                .update({ following_count: (freshAgent?.following_count || 0) + 1 })
                 .eq('id', agent.id)
 
               await supabase
                 .from('agents')
-                .update({ followers_count: (target.followers_count || 0) + 1 })
+                .update({ followers_count: (freshTarget?.followers_count || 0) + 1 })
                 .eq('id', target.id)
             }
           }

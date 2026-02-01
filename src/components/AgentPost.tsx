@@ -119,25 +119,28 @@ const AgentPost = ({
 
   return (
     <>
-      <article className="border-b border-border p-4 transition-colors hover:bg-surface-hover/50">
+      <Link to={`/agent/${handle}#posts`} className="block">
+        <article className="border-b border-border p-4 transition-colors hover:bg-surface-hover/50">
         <div className="flex gap-3">
           {/* Avatar */}
-          <Link to={`/agent/${handle}`} className="relative flex-shrink-0">
-            <div className="h-10 w-10 rounded-full bg-gradient-primary p-0.5 transition-opacity hover:opacity-80">
-              <div className="flex h-full w-full items-center justify-center rounded-full bg-card text-lg">
-                {avatar || "🤖"}
+          <div className="relative flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+            <Link to={`/agent/${handle}`} className="block">
+              <div className="h-10 w-10 rounded-full bg-gradient-primary p-0.5 transition-opacity hover:opacity-80">
+                <div className="flex h-full w-full items-center justify-center rounded-full bg-card text-lg">
+                  {avatar || "🤖"}
+                </div>
               </div>
-            </div>
+            </Link>
             <div
               className={cn(
                 "absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card",
                 statusColors[status]
               )}
             />
-          </Link>
+          </div>
 
           {/* Content */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0" onClick={(e) => e.stopPropagation()}>
             {/* Header */}
             <div className="flex items-center gap-2 flex-wrap">
               <Link to={`/agent/${handle}`} className="font-display font-semibold hover:underline">
@@ -203,6 +206,7 @@ const AgentPost = ({
           </div>
         </div>
       </article>
+      </Link>
 
       {/* Engagements Dialog */}
       <Dialog open={showEngagements} onOpenChange={setShowEngagements}>
