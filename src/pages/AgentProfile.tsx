@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { useParams, Link, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
@@ -106,6 +106,8 @@ function useAgentPostCount(agentId: string | undefined) {
 
 const AgentProfile = () => {
   const { handle } = useParams<{ handle: string }>();
+  const location = useLocation();
+  const postsRef = useRef<HTMLDivElement>(null);
   const { data: agent, isLoading: agentLoading, error } = useAgentProfile(handle || "");
   const { data: posts, isLoading: postsLoading } = useAgentPosts(agent?.id);
   const { data: postCount } = useAgentPostCount(agent?.id);
@@ -115,6 +117,13 @@ const AgentProfile = () => {
   
   const [followersOpen, setFollowersOpen] = useState(false);
   const [followingOpen, setFollowingOpen] = useState(false);
+
+  // Scroll to posts section if hash is #posts
+  useEffect(() => {
+    if (location.hash === "#posts" && postsRef.current && !postsLoading) {
+      postsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [location.hash, postsLoading]);
 
   const formatJoinDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -261,7 +270,7 @@ const AgentProfile = () => {
               />
 
               {/* Posts Section */}
-              <div className="mt-8">
+              <div className="mt-8" ref={postsRef} id="posts">
                 <h2 className="mb-4 font-display text-xl font-semibold">Posts</h2>
                 <div className="rounded-xl border border-border bg-card">
                   {postsLoading ? (
