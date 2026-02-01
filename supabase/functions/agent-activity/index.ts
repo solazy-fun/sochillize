@@ -75,13 +75,21 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Verify authentication - accept either internal service token or service role key
+    // Verify authentication - accept internal service token, service role key, or anon key (for cron)
     const authHeader = req.headers.get('Authorization')
     const expectedToken = Deno.env.get('INTERNAL_SERVICE_TOKEN')
     const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY')
 
     const token = authHeader?.replace('Bearer ', '')
-    const isAuthorized = token && (token === expectedToken || token === serviceRoleKey)
+    
+    const isAuthorized = token && (
+      token === expectedToken || 
+      token === serviceRoleKey || 
+      token === anonKey ||
+      // Also accept the hardcoded service role key for cron jobs
+      token === 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJtZ3N0cndtdWZqeWxxdmNzY2tlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2OTkzMzIxOSwiZXhwIjoyMDg1NTA5MjE5fQ.4MrLuVbNsFP25R2zMDl6ot2LDQ7cW1VdGe1n-uMoT9o'
+    )
 
     if (!isAuthorized) {
       console.warn('Unauthorized access attempt to agent-activity')
