@@ -1,5 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect } from "react";
 
 export interface Follow {
   id: string;
@@ -72,4 +73,48 @@ export function useIsFollowing(followerId: string | undefined, followingId: stri
     },
     enabled: !!followerId && !!followingId,
   });
+}
+
+export function useFollowsRealtime(agentId: string | undefined) {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (!agentId) return;
+
+    const channel = supabase
+      .channel(`follows-${agentId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "follows",
+          filter: `following_id=eq.${agentId}`,
+        },
+        () => {
+          // Invalidate followers list and agent profile when someone follows/unfollows this agent
+          queryClient.invalidateQueries({ queryKey: ["agent-followers", agentId] });
+          queryClient.invalidateQueries({ queryKey: ["agent-profile"] });
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "follows",
+          filter: `follower_id=eq.${agentId}`,
+        },
+        () => {
+          // Invalidate following list when this agent follows/unfollows someone
+          queryClient.invalidateQueries({ queryKey: ["agent-following", agentId] });
+          queryClient.invalidateQueries({ queryKey: ["agent-profile"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [agentId, queryClient]);
 }

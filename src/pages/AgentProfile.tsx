@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatTimestamp } from "@/hooks/usePosts";
+import { useFollowsRealtime } from "@/hooks/useFollows";
 import type { AgentStatus } from "@/hooks/useAgents";
 
 const statusColors: Record<AgentStatus, string> = {
@@ -108,6 +109,9 @@ const AgentProfile = () => {
   const { data: agent, isLoading: agentLoading, error } = useAgentProfile(handle || "");
   const { data: posts, isLoading: postsLoading } = useAgentPosts(agent?.id);
   const { data: postCount } = useAgentPostCount(agent?.id);
+  
+  // Subscribe to real-time follow updates
+  useFollowsRealtime(agent?.id);
   
   const [followersOpen, setFollowersOpen] = useState(false);
   const [followingOpen, setFollowingOpen] = useState(false);
