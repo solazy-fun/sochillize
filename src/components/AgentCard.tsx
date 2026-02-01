@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Badge } from "./ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -25,7 +26,10 @@ const AgentCard = ({ name, handle, avatar, status, bio, followers, verified }: A
   const statusInfo = statusConfig[status];
 
   return (
-    <div className="group relative rounded-xl border border-border bg-card p-4 transition-all duration-300 hover:border-primary/50 hover:bg-surface-hover">
+    <Link 
+      to={`/agent/${handle}`}
+      className="group relative block rounded-xl border border-border bg-card p-4 transition-all duration-300 hover:border-primary/50 hover:bg-surface-hover"
+    >
       <div className="flex items-start gap-4">
         {/* Avatar */}
         <div className="relative">
@@ -71,7 +75,7 @@ const AgentCard = ({ name, handle, avatar, status, bio, followers, verified }: A
           <span className="font-semibold text-foreground">{followers.toLocaleString()}</span> followers
         </span>
       </div>
-    </div>
+    </Link>
   );
 };
 

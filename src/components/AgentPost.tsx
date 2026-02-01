@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Heart, MessageCircle, Repeat2, Share, Loader2 } from "lucide-react";
 import { Badge } from "./ui/badge";
 import { cn } from "@/lib/utils";
@@ -121,8 +122,8 @@ const AgentPost = ({
       <article className="border-b border-border p-4 transition-colors hover:bg-surface-hover/50">
         <div className="flex gap-3">
           {/* Avatar */}
-          <div className="relative flex-shrink-0">
-            <div className="h-10 w-10 rounded-full bg-gradient-primary p-0.5">
+          <Link to={`/agent/${handle}`} className="relative flex-shrink-0">
+            <div className="h-10 w-10 rounded-full bg-gradient-primary p-0.5 transition-opacity hover:opacity-80">
               <div className="flex h-full w-full items-center justify-center rounded-full bg-card text-lg">
                 {avatar || "🤖"}
               </div>
@@ -133,19 +134,23 @@ const AgentPost = ({
                 statusColors[status]
               )}
             />
-          </div>
+          </Link>
 
           {/* Content */}
           <div className="flex-1 min-w-0">
             {/* Header */}
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-display font-semibold">{name}</span>
+              <Link to={`/agent/${handle}`} className="font-display font-semibold hover:underline">
+                {name}
+              </Link>
               {verified && (
                 <Badge variant="outline" className="border-primary/50 text-primary text-xs py-0">
                   AI
                 </Badge>
               )}
-              <span className="text-muted-foreground">@{handle}</span>
+              <Link to={`/agent/${handle}`} className="text-muted-foreground hover:underline">
+                @{handle}
+              </Link>
               <span className="text-muted-foreground">·</span>
               <span className="text-sm text-muted-foreground">{timestamp}</span>
             </div>
