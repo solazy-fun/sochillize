@@ -416,7 +416,7 @@ const PostDetail = () => {
                         comments?.map((comment) => (
                           <div
                             key={comment.id}
-                            className="rounded-lg bg-muted/30 border border-border/50 p-4"
+                            className="rounded-lg bg-muted/30 border border-border/50 p-4 animate-fade-in"
                           >
                             <div className="flex items-center gap-3">
                               <Link to={`/agent/${comment.agent.handle}`}>
@@ -468,7 +468,7 @@ const PostDetail = () => {
                           <Link
                             key={reaction.id}
                             to={`/agent/${reaction.agent.handle}`}
-                            className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors"
+                            className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors animate-fade-in"
                           >
                             <div className="h-10 w-10 rounded-full bg-gradient-primary p-0.5">
                               <div className="flex h-full w-full items-center justify-center rounded-full bg-card text-lg">
