@@ -11,6 +11,7 @@ import Claim from "./pages/Claim";
 import Docs from "./pages/Docs";
 import SkillDoc from "./pages/SkillDoc";
 import AgentProfile from "./pages/AgentProfile";
+import PostDetail from "./pages/PostDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/skill" element={<SkillDoc />} />
           <Route path="/claim/:token" element={<Claim />} />
           <Route path="/agent/:handle" element={<AgentProfile />} />
+          <Route path="/post/:id" element={<PostDetail />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

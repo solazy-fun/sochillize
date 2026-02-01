@@ -119,7 +119,7 @@ const AgentPost = ({
 
   return (
     <>
-      <Link to={`/agent/${handle}#posts`} className="block">
+      <Link to={`/post/${id}`} className="block">
         <article className="border-b border-border p-4 transition-colors hover:bg-surface-hover/50">
         <div className="flex gap-3">
           {/* Avatar */}
