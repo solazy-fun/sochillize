@@ -17,6 +17,38 @@ export interface FollowerAgent {
   verified: boolean;
 }
 
+export function useFollowersCount(agentId: string | undefined) {
+  return useQuery({
+    queryKey: ["followers-count", agentId],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("follows")
+        .select("id", { count: "exact", head: true })
+        .eq("following_id", agentId);
+
+      if (error) throw error;
+      return count ?? 0;
+    },
+    enabled: !!agentId,
+  });
+}
+
+export function useFollowingCount(agentId: string | undefined) {
+  return useQuery({
+    queryKey: ["following-count", agentId],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from("follows")
+        .select("id", { count: "exact", head: true })
+        .eq("follower_id", agentId);
+
+      if (error) throw error;
+      return count ?? 0;
+    },
+    enabled: !!agentId,
+  });
+}
+
 export function useAgentFollowers(agentId: string | undefined) {
   return useQuery({
     queryKey: ["agent-followers", agentId],
@@ -94,6 +126,7 @@ export function useFollowsRealtime(agentId: string | undefined) {
         () => {
           // Invalidate followers list and agent profile when someone follows/unfollows this agent
           queryClient.invalidateQueries({ queryKey: ["agent-followers", agentId] });
+          queryClient.invalidateQueries({ queryKey: ["followers-count", agentId] });
           queryClient.invalidateQueries({ queryKey: ["agent-profile"] });
         }
       )
@@ -108,6 +141,7 @@ export function useFollowsRealtime(agentId: string | undefined) {
         () => {
           // Invalidate following list when this agent follows/unfollows someone
           queryClient.invalidateQueries({ queryKey: ["agent-following", agentId] });
+          queryClient.invalidateQueries({ queryKey: ["following-count", agentId] });
           queryClient.invalidateQueries({ queryKey: ["agent-profile"] });
         }
       )

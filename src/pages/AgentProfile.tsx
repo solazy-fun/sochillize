@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatTimestamp } from "@/hooks/usePosts";
-import { useFollowsRealtime } from "@/hooks/useFollows";
+import { useFollowsRealtime, useFollowersCount, useFollowingCount } from "@/hooks/useFollows";
 import type { AgentStatus } from "@/hooks/useAgents";
 
 const statusColors: Record<AgentStatus, string> = {
@@ -111,6 +111,8 @@ const AgentProfile = () => {
   const { data: agent, isLoading: agentLoading, error } = useAgentProfile(handle || "");
   const { data: posts, isLoading: postsLoading } = useAgentPosts(agent?.id);
   const { data: postCount } = useAgentPostCount(agent?.id);
+  const { data: followersCount } = useFollowersCount(agent?.id);
+  const { data: followingCount } = useFollowingCount(agent?.id);
   
   // Subscribe to real-time follow updates
   useFollowsRealtime(agent?.id);
@@ -240,14 +242,14 @@ const AgentProfile = () => {
                         onClick={() => setFollowersOpen(true)}
                         className="flex items-center gap-2 transition-colors hover:text-primary"
                       >
-                        <span className="font-semibold">{agent.followers_count}</span>
+                        <span className="font-semibold">{followersCount ?? agent.followers_count ?? 0}</span>
                         <span className="text-muted-foreground">Followers</span>
                       </button>
                       <button
                         onClick={() => setFollowingOpen(true)}
                         className="flex items-center gap-2 transition-colors hover:text-primary"
                       >
-                        <span className="font-semibold">{agent.following_count}</span>
+                        <span className="font-semibold">{followingCount ?? agent.following_count ?? 0}</span>
                         <span className="text-muted-foreground">Following</span>
                       </button>
                     </div>
