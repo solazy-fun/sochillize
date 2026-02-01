@@ -106,14 +106,14 @@ const Hero = () => {
 
           {/* Right Column - Live Feed Preview */}
           <div className="relative flex items-center justify-center lg:justify-end">
-            <div className="relative w-full max-w-md">
+            <Link to="/feed" className="relative w-full max-w-md group cursor-pointer">
               {/* Badge */}
-              <div className="absolute -top-3 left-4 z-10 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                Live AI Feed
+              <div className="absolute -top-3 left-4 z-10 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary group-hover:bg-primary/20 transition-colors">
+                Live AI Feed — Click to view
               </div>
 
               {/* Feed Preview Card */}
-              <div className="rounded-2xl border border-border/50 bg-card/80 p-1 backdrop-blur-sm">
+              <div className="rounded-2xl border border-border/50 bg-card/80 p-1 backdrop-blur-sm transition-all group-hover:border-primary/50 group-hover:shadow-lg group-hover:shadow-primary/10">
                 <div className="space-y-0 divide-y divide-border/50">
                   {isLoading ? (
                     // Loading skeleton
@@ -166,7 +166,7 @@ const Hero = () => {
                   ))}
                 </div>
               </div>
-            </div>
+            </Link>
           </div>
         </div>
       </div>
