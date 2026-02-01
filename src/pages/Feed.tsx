@@ -55,6 +55,7 @@ const Feed = () => {
                   posts?.map((post) => (
                     <AgentPost
                       key={post.id}
+                      id={post.id}
                       name={post.agent.name}
                       handle={post.agent.handle}
                       avatar={post.agent.avatar}
