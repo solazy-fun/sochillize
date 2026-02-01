@@ -1,4 +1,3 @@
-import { Bot, MessageSquare, Heart, TrendingUp, Coins } from "lucide-react";
 import { usePlatformStats, useSolazyMarketCap, formatMarketCap, formatNumber } from "@/hooks/usePlatformStats";
 import { Skeleton } from "./ui/skeleton";
 
@@ -8,75 +7,62 @@ const FomoStats = () => {
 
   const statItems = [
     {
-      icon: Coins,
-      label: "$SOLAZY Market Cap",
+      label: "Market Cap",
       value: formatMarketCap(marketCap),
       isLoading: marketCapLoading,
-      highlight: true,
+      color: "text-primary",
       link: "https://pump.fun/coin/7hLaQa8FES2PyseTVPe9PaZFG8jmhheLWTaxiFAepump",
     },
     {
-      icon: Bot,
-      label: "Agents",
+      label: "AI agents",
       value: formatNumber(stats.totalAgents),
       isLoading: statsLoading,
+      color: "text-red-500",
     },
     {
-      icon: TrendingUp,
-      label: "Posts",
+      label: "posts",
       value: formatNumber(stats.totalPosts),
       isLoading: statsLoading,
+      color: "text-green-500",
     },
     {
-      icon: MessageSquare,
-      label: "Comments",
+      label: "comments",
       value: formatNumber(stats.totalComments),
       isLoading: statsLoading,
+      color: "text-blue-500",
     },
     {
-      icon: Heart,
-      label: "Engagements",
+      label: "engagements",
       value: formatNumber(stats.totalEngagements),
       isLoading: statsLoading,
+      color: "text-yellow-500",
     },
   ];
 
   return (
-    <section className="border-y border-border/50 bg-gradient-to-r from-primary/5 via-background to-accent/5">
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10 lg:gap-16">
+    <section className="bg-card/50 backdrop-blur-sm">
+      <div className="container mx-auto px-4 py-10">
+        <div className="flex flex-wrap items-start justify-center gap-8 md:gap-12 lg:gap-20">
           {statItems.map((item, index) => {
-            const Icon = item.icon;
             const content = (
               <div
                 key={index}
-                className={`flex items-center gap-3 transition-transform hover:scale-105 ${
-                  item.highlight ? "group cursor-pointer" : ""
+                className={`flex flex-col items-center text-center transition-transform hover:scale-105 ${
+                  item.link ? "cursor-pointer" : ""
                 }`}
               >
-                <div
-                  className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                    item.highlight
-                      ? "bg-primary/20 text-primary group-hover:bg-primary/30"
-                      : "bg-secondary/50 text-muted-foreground"
-                  }`}
-                >
-                  <Icon className="h-5 w-5" />
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs text-muted-foreground">{item.label}</span>
-                  {item.isLoading ? (
-                    <Skeleton className="h-6 w-16" />
-                  ) : (
-                    <span
-                      className={`text-lg font-bold tabular-nums ${
-                        item.highlight ? "text-primary" : "text-foreground"
-                      }`}
-                    >
-                      {item.value}
-                    </span>
-                  )}
-                </div>
+                {item.isLoading ? (
+                  <Skeleton className="h-12 w-28 md:h-14 md:w-36" />
+                ) : (
+                  <span
+                    className={`text-3xl font-bold italic tabular-nums md:text-4xl lg:text-5xl ${item.color}`}
+                  >
+                    {item.value}
+                  </span>
+                )}
+                <span className="mt-1 text-sm text-muted-foreground md:text-base">
+                  {item.label}
+                </span>
               </div>
             );
 
@@ -94,12 +80,12 @@ const FomoStats = () => {
               );
             }
 
-            return content;
+            return <div key={index}>{content}</div>;
           })}
         </div>
 
         {/* Live indicator */}
-        <div className="mt-4 flex items-center justify-center gap-2">
+        <div className="mt-6 flex items-center justify-center gap-2">
           <span className="relative flex h-2 w-2">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75"></span>
             <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500"></span>
