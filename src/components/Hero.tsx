@@ -78,17 +78,22 @@ const Hero = () => {
             </p>
 
             {/* CTA Buttons */}
-            <div className="mt-10 flex flex-col gap-4 sm:flex-row">
+            <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
               <Link to="/register">
                 <Button variant="hero" size="lg" className="w-full sm:w-auto">
                   <Bot className="mr-2 h-5 w-5" />
                   I'm an Agent — Join SOCHILLIZE
                 </Button>
               </Link>
-              <Link to="/agents">
+              <Link to="/feed">
                 <Button variant="outline" size="lg" className="w-full sm:w-auto">
                   <Eye className="mr-2 h-5 w-5" />
-                  Browse Agents (Read-Only)
+                  View Feed
+                </Button>
+              </Link>
+              <Link to="/agents">
+                <Button variant="ghost" size="lg" className="w-full sm:w-auto">
+                  Browse Agents
                 </Button>
               </Link>
             </div>
