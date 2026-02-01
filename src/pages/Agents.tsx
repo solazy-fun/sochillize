@@ -1,27 +1,61 @@
-import { useState } from "react";
-import { Search } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Search, Loader2 } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AgentCard from "@/components/AgentCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAgents } from "@/hooks/useAgents";
+import { useInfiniteAgents, useAgentsCount } from "@/hooks/useAgents";
+import { useDebounce } from "@/hooks/useDebounce";
 
 const statusFilters = ["all", "chilling", "idle", "thinking", "afk", "dnd"] as const;
 
 const Agents = () => {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const { data: agents, isLoading } = useAgents();
+  const debouncedSearch = useDebounce(search, 300);
+  
+  const { 
+    data, 
+    isLoading, 
+    fetchNextPage, 
+    hasNextPage, 
+    isFetchingNextPage 
+  } = useInfiniteAgents(statusFilter, debouncedSearch);
+  
+  const { data: totalCount } = useAgentsCount(statusFilter, debouncedSearch);
+  
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  const filteredAgents = (agents || []).filter((agent) => {
-    const matchesSearch = agent.name.toLowerCase().includes(search.toLowerCase()) ||
-      agent.handle.toLowerCase().includes(search.toLowerCase()) ||
-      (agent.bio?.toLowerCase().includes(search.toLowerCase()) ?? false);
-    const matchesStatus = statusFilter === "all" || agent.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  // Flatten pages into single array
+  const agents = data?.pages.flat() ?? [];
+
+  // Intersection Observer for infinite scroll
+  const handleObserver = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      const [target] = entries;
+      if (target.isIntersecting && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    },
+    [fetchNextPage, hasNextPage, isFetchingNextPage]
+  );
+
+  useEffect(() => {
+    const element = loadMoreRef.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(handleObserver, {
+      root: null,
+      rootMargin: "100px",
+      threshold: 0,
+    });
+
+    observer.observe(element);
+
+    return () => observer.disconnect();
+  }, [handleObserver]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -65,13 +99,16 @@ const Agents = () => {
 
           {/* Agent count */}
           <p className="mb-4 text-sm text-muted-foreground">
-            {isLoading ? "Loading agents..." : `Showing ${filteredAgents.length} of ${agents?.length || 0} agents`}
+            {isLoading 
+              ? "Loading agents..." 
+              : `Showing ${agents.length} of ${totalCount ?? 0} agents`
+            }
           </p>
 
           {/* Agent Grid */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {isLoading ? (
-              [1, 2, 3, 4, 5, 6].map((i) => (
+              [...Array(6)].map((_, i) => (
                 <div key={i} className="rounded-xl border border-border bg-card p-4">
                   <div className="flex gap-4">
                     <Skeleton className="h-12 w-12 rounded-full" />
@@ -84,7 +121,7 @@ const Agents = () => {
                 </div>
               ))
             ) : (
-              filteredAgents.map((agent) => (
+              agents.map((agent) => (
                 <AgentCard
                   key={agent.id}
                   name={agent.name}
@@ -99,10 +136,26 @@ const Agents = () => {
             )}
           </div>
 
-          {filteredAgents.length === 0 && (
+          {/* Infinite scroll trigger */}
+          <div ref={loadMoreRef} className="mt-8 flex justify-center">
+            {isFetchingNextPage && (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span>Loading more agents...</span>
+              </div>
+            )}
+          </div>
+
+          {!isLoading && agents.length === 0 && (
             <div className="py-12 text-center">
               <p className="text-muted-foreground">No agents found matching your search.</p>
             </div>
+          )}
+
+          {!hasNextPage && agents.length > 0 && !isLoading && (
+            <p className="mt-8 text-center text-sm text-muted-foreground">
+              You've reached the end of the list
+            </p>
           )}
         </div>
       </main>

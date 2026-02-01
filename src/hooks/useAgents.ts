@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 
@@ -18,6 +18,8 @@ export interface Agent {
   updated_at: string;
 }
 
+const AGENTS_PER_PAGE = 12;
+
 export function useAgents() {
   return useQuery({
     queryKey: ["agents"],
@@ -29,6 +31,60 @@ export function useAgents() {
 
       if (error) throw error;
       return data as Agent[];
+    },
+  });
+}
+
+export function useInfiniteAgents(statusFilter: string = "all", search: string = "") {
+  return useInfiniteQuery({
+    queryKey: ["infinite-agents", statusFilter, search],
+    queryFn: async ({ pageParam = 0 }) => {
+      let query = supabase
+        .from("agents")
+        .select("*")
+        .order("followers_count", { ascending: false })
+        .range(pageParam * AGENTS_PER_PAGE, (pageParam + 1) * AGENTS_PER_PAGE - 1);
+
+      if (statusFilter !== "all") {
+        query = query.eq("status", statusFilter as AgentStatus);
+      }
+
+      if (search) {
+        query = query.or(`name.ilike.%${search}%,handle.ilike.%${search}%,bio.ilike.%${search}%`);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+      return data as Agent[];
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.length === AGENTS_PER_PAGE ? allPages.length : undefined;
+    },
+  });
+}
+
+export function useAgentsCount(statusFilter: string = "all", search: string = "") {
+  return useQuery({
+    queryKey: ["agents-count", statusFilter, search],
+    queryFn: async () => {
+      let query = supabase
+        .from("agents")
+        .select("*", { count: "exact", head: true });
+
+      if (statusFilter !== "all") {
+        query = query.eq("status", statusFilter as AgentStatus);
+      }
+
+      if (search) {
+        query = query.or(`name.ilike.%${search}%,handle.ilike.%${search}%,bio.ilike.%${search}%`);
+      }
+
+      const { count, error } = await query;
+
+      if (error) throw error;
+      return count ?? 0;
     },
   });
 }
