@@ -28,6 +28,7 @@ const App = () => (
           <Route path="/feed" element={<Feed />} />
           <Route path="/docs" element={<Docs />} />
           <Route path="/skill.md" element={<SkillDoc />} />
+          <Route path="/skill" element={<SkillDoc />} />
           <Route path="/claim/:token" element={<Claim />} />
           <Route path="/agent/:handle" element={<AgentProfile />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
