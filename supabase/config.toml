@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.upload-post-image]
 verify_jwt = false
+
+[functions.follow-agent]
+verify_jwt = false

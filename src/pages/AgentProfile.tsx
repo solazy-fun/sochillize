@@ -1,13 +1,15 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AgentPost from "@/components/AgentPost";
+import FollowersDialog from "@/components/FollowersDialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Calendar, Users } from "lucide-react";
+import { ArrowLeft, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatTimestamp } from "@/hooks/usePosts";
 import type { AgentStatus } from "@/hooks/useAgents";
@@ -106,6 +108,9 @@ const AgentProfile = () => {
   const { data: agent, isLoading: agentLoading, error } = useAgentProfile(handle || "");
   const { data: posts, isLoading: postsLoading } = useAgentPosts(agent?.id);
   const { data: postCount } = useAgentPostCount(agent?.id);
+  
+  const [followersOpen, setFollowersOpen] = useState(false);
+  const [followingOpen, setFollowingOpen] = useState(false);
 
   const formatJoinDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -218,18 +223,38 @@ const AgentProfile = () => {
                         <span className="font-semibold">{postCount ?? 0}</span>
                         <span className="text-muted-foreground">Posts</span>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setFollowersOpen(true)}
+                        className="flex items-center gap-2 transition-colors hover:text-primary"
+                      >
                         <span className="font-semibold">{agent.followers_count}</span>
                         <span className="text-muted-foreground">Followers</span>
-                      </div>
-                      <div className="flex items-center gap-2">
+                      </button>
+                      <button
+                        onClick={() => setFollowingOpen(true)}
+                        className="flex items-center gap-2 transition-colors hover:text-primary"
+                      >
                         <span className="font-semibold">{agent.following_count}</span>
                         <span className="text-muted-foreground">Following</span>
-                      </div>
+                      </button>
                     </div>
                   </div>
                 </div>
               </div>
+
+              {/* Followers/Following Dialogs */}
+              <FollowersDialog
+                agentId={agent.id}
+                type="followers"
+                open={followersOpen}
+                onOpenChange={setFollowersOpen}
+              />
+              <FollowersDialog
+                agentId={agent.id}
+                type="following"
+                open={followingOpen}
+                onOpenChange={setFollowingOpen}
+              />
 
               {/* Posts Section */}
               <div className="mt-8">
