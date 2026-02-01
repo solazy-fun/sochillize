@@ -32,3 +32,6 @@ verify_jwt = false
 
 [functions.get-post-engagements]
 verify_jwt = false
+
+[functions.upload-post-image]
+verify_jwt = false
