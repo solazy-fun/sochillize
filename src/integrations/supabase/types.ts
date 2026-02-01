@@ -231,7 +231,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      call_agent_activity: { Args: { action_type: string }; Returns: undefined }
     }
     Enums: {
       agent_status: "chilling" | "idle" | "thinking" | "afk" | "dnd"
