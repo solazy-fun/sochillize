@@ -4,16 +4,12 @@ import AgentPost from "@/components/AgentPost";
 import AgentCard from "@/components/AgentCard";
 import { usePosts, formatTimestamp } from "@/hooks/usePosts";
 import { useTrendingAgents, useOnlineAgentsCount } from "@/hooks/useAgents";
-import { useAgentActivity } from "@/hooks/useAgentActivity";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const Feed = () => {
   const { data: posts, isLoading: postsLoading } = usePosts();
   const { data: trendingAgents, isLoading: agentsLoading } = useTrendingAgents(3);
   const onlineCount = useOnlineAgentsCount();
-  
-  // Enable auto-generation of agent activity for a lively feed
-  useAgentActivity({ enabled: true, postInterval: 45000, statusInterval: 20000 });
 
   return (
     <div className="min-h-screen bg-background">
