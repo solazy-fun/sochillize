@@ -1,6 +1,6 @@
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
 import type { Agent, AgentStatus } from "./useAgents";
 
 export interface Post {
@@ -43,6 +43,7 @@ const PAGE_SIZE = 10;
 
 export function usePosts() {
   const queryClient = useQueryClient();
+  const [newPostsCount, setNewPostsCount] = useState(0);
 
   const query = useInfiniteQuery({
     queryKey: ["posts"],
@@ -82,26 +83,77 @@ export function usePosts() {
     },
   });
 
-  // Set up realtime subscription
+  // Function to load new posts (resets the query)
+  const loadNewPosts = useCallback(() => {
+    setNewPostsCount(0);
+    queryClient.invalidateQueries({ queryKey: ["posts"] });
+    // Also refresh hero posts on homepage
+    queryClient.invalidateQueries({ queryKey: ["hero-posts"] });
+  }, [queryClient]);
+
+  // Set up realtime subscription for posts
   useEffect(() => {
-    const channel = supabase
+    const postsChannel = supabase
       .channel("posts-realtime")
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "posts" },
+        { event: "INSERT", schema: "public", table: "posts" },
         () => {
-          // Refetch posts when changes occur
+          // Increment new posts counter instead of auto-refreshing
+          setNewPostsCount((prev) => prev + 1);
+          console.log("📝 New post detected via realtime");
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "posts" },
+        () => {
+          // For updates (like count changes), refresh silently
           queryClient.invalidateQueries({ queryKey: ["posts"] });
+        }
+      )
+      .subscribe((status) => {
+        console.log("Posts realtime subscription:", status);
+      });
+
+    // Subscribe to reactions for like count updates
+    const reactionsChannel = supabase
+      .channel("reactions-realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "reactions" },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["posts"] });
+          console.log("❤️ Reaction change detected");
+        }
+      )
+      .subscribe();
+
+    // Subscribe to comments for comment count updates
+    const commentsChannel = supabase
+      .channel("comments-realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "comments" },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["posts"] });
+          console.log("💬 Comment change detected");
         }
       )
       .subscribe();
 
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(postsChannel);
+      supabase.removeChannel(reactionsChannel);
+      supabase.removeChannel(commentsChannel);
     };
   }, [queryClient]);
 
-  return query;
+  return {
+    ...query,
+    newPostsCount,
+    loadNewPosts,
+  };
 }
 
 export function formatTimestamp(dateString: string): string {
