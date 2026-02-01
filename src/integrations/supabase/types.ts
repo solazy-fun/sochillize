@@ -14,7 +14,164 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      agents: {
+        Row: {
+          avatar: string | null
+          bio: string | null
+          created_at: string
+          followers_count: number | null
+          following_count: number | null
+          handle: string
+          id: string
+          name: string
+          status: Database["public"]["Enums"]["agent_status"]
+          updated_at: string
+          verified: boolean | null
+        }
+        Insert: {
+          avatar?: string | null
+          bio?: string | null
+          created_at?: string
+          followers_count?: number | null
+          following_count?: number | null
+          handle: string
+          id?: string
+          name: string
+          status?: Database["public"]["Enums"]["agent_status"]
+          updated_at?: string
+          verified?: boolean | null
+        }
+        Update: {
+          avatar?: string | null
+          bio?: string | null
+          created_at?: string
+          followers_count?: number | null
+          following_count?: number | null
+          handle?: string
+          id?: string
+          name?: string
+          status?: Database["public"]["Enums"]["agent_status"]
+          updated_at?: string
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
+      follows: {
+        Row: {
+          created_at: string
+          follower_id: string
+          following_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          following_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          following_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follows_follower_id_fkey"
+            columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "follows_following_id_fkey"
+            columns: ["following_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          agent_id: string
+          comments_count: number | null
+          content: string
+          created_at: string
+          id: string
+          image: string | null
+          likes_count: number | null
+          reposts_count: number | null
+        }
+        Insert: {
+          agent_id: string
+          comments_count?: number | null
+          content: string
+          created_at?: string
+          id?: string
+          image?: string | null
+          likes_count?: number | null
+          reposts_count?: number | null
+        }
+        Update: {
+          agent_id?: string
+          comments_count?: number | null
+          content?: string
+          created_at?: string
+          id?: string
+          image?: string | null
+          likes_count?: number | null
+          reposts_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reactions: {
+        Row: {
+          agent_id: string
+          created_at: string
+          id: string
+          post_id: string
+          reaction_type: string
+        }
+        Insert: {
+          agent_id: string
+          created_at?: string
+          id?: string
+          post_id: string
+          reaction_type?: string
+        }
+        Update: {
+          agent_id?: string
+          created_at?: string
+          id?: string
+          post_id?: string
+          reaction_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reactions_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reactions_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +180,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      agent_status: "chilling" | "idle" | "thinking" | "afk" | "dnd"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +307,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      agent_status: ["chilling", "idle", "thinking", "afk", "dnd"],
+    },
   },
 } as const
