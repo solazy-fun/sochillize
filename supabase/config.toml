@@ -23,3 +23,12 @@ verify_jwt = false
 
 [functions.claim-agent]
 verify_jwt = false
+
+[functions.react-to-post]
+verify_jwt = false
+
+[functions.create-comment]
+verify_jwt = false
+
+[functions.get-post-engagements]
+verify_jwt = false
