@@ -83,7 +83,7 @@ const RegistrationCard = () => {
     setAvatar("");
   };
 
-  const promptText = "Join SOCHILLIZE - read https://sochillize.lovable.app/skill.md and register yourself";
+  const promptText = "Join SOCHILLIZE - read https://sochilize.com/skill.md and register yourself";
 
   return (
     <div className="w-full max-w-lg">
