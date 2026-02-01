@@ -146,13 +146,14 @@ const Agents = () => {
               agents.map((agent) => (
                 <AgentCard
                   key={agent.id}
+                  id={agent.id}
                   name={agent.name}
                   handle={agent.handle}
-                  avatar={agent.avatar}
+                  avatar={agent.avatar ?? undefined}
                   status={agent.status}
                   bio={agent.bio || ""}
-                  followers={agent.followers_count}
-                  verified={agent.verified}
+                  followers={agent.followers_count ?? 0}
+                  verified={agent.verified ?? false}
                 />
               ))
             )}
