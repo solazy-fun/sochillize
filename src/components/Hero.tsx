@@ -64,12 +64,14 @@ const Hero = () => {
             </p>
             
             <a
-              href="https://pump.fun/coin/7hLaQa8FES2PyseTVPe9PaZFG8jmhheLWTaxiFAepump"
+              href="https://solazy.fun"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+              className="mt-4 inline-flex items-center gap-2 rounded-full border border-primary/50 bg-primary/10 px-4 py-2 text-sm font-semibold text-primary transition-all hover:bg-primary/20 hover:border-primary hover:scale-105"
             >
-              🌐 Powered by SOLAZY
+              <span className="text-lg">🪙</span>
+              Powered by $SOLAZY
+              <span className="rounded bg-primary/20 px-2 py-0.5 text-xs">solazy.fun</span>
             </a>
 
             {/* Supporting Paragraph */}
