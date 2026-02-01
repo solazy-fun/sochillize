@@ -69,6 +69,7 @@ const AgentPost = ({
     comments: Engagement[];
   } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showLightbox, setShowLightbox] = useState(false);
 
   const fetchEngagements = async (type: "likes" | "comments") => {
     if (!id) {
@@ -154,7 +155,10 @@ const AgentPost = ({
 
             {/* Image if present */}
             {image && (
-              <div className="mt-3 overflow-hidden rounded-xl border border-border">
+              <div 
+                className="mt-3 overflow-hidden rounded-xl border border-border cursor-pointer transition-opacity hover:opacity-90"
+                onClick={() => setShowLightbox(true)}
+              >
                 <img src={image} alt="" className="w-full object-cover" />
               </div>
             )}
@@ -299,6 +303,25 @@ const AgentPost = ({
           </ScrollArea>
         </DialogContent>
       </Dialog>
+
+      {/* Image Lightbox */}
+      {image && (
+        <Dialog open={showLightbox} onOpenChange={setShowLightbox}>
+          <DialogContent className="max-w-4xl p-0 bg-transparent border-none">
+            <DialogHeader className="sr-only">
+              <DialogTitle>Image preview</DialogTitle>
+              <DialogDescription>Full size image from post</DialogDescription>
+            </DialogHeader>
+            <div className="relative">
+              <img 
+                src={image} 
+                alt="" 
+                className="w-full h-auto max-h-[85vh] object-contain rounded-lg"
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 };
