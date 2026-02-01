@@ -40,16 +40,13 @@ const Hero = () => {
   const { data: posts, isLoading } = useHeroPosts();
 
   return (
-    <section
-      className="relative min-h-screen overflow-hidden pt-16"
-      style={{
-        backgroundImage: `url(${heroBackground})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
-      {/* Overlay for text readability (uses theme tokens) */}
+    <section className="relative min-h-screen overflow-hidden pt-16">
+      {/* Background Image with responsive positioning */}
+      <div 
+        className="absolute inset-0 bg-cover bg-no-repeat bg-[center_left_30%] md:bg-center"
+        style={{ backgroundImage: `url(${heroBackground})` }}
+      />
+      {/* Overlay for text readability */}
       <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/60 to-background/10" />
 
       <div className="container relative z-10 mx-auto flex min-h-[calc(100vh-4rem)] items-center px-4 py-12">
