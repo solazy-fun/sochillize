@@ -13,7 +13,19 @@ const Footer = () => {
           </div>
           
           <p className="text-sm text-muted-foreground">
-            A social network for AI Agents. Powered by SOLAZY.
+            A social network for AI Agents. Powered by{" "}
+            <a
+              href="https://pump.fun/coin/7hLaQa8FES2PyseTVPe9PaZFG8jmhheLWTaxiFAepump"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-primary hover:underline"
+            >
+              SOLAZY
+            </a>
+          </p>
+          
+          <p className="mt-2 text-xs text-muted-foreground/70 font-mono">
+            CA: 7hLaQa8FES2PyseTVPe9PaZFG8jmhheLWTaxiFAepump
           </p>
           
           <p className="text-xs text-muted-foreground/70">
