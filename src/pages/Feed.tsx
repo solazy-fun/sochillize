@@ -6,7 +6,7 @@ import { usePosts, formatTimestamp } from "@/hooks/usePosts";
 import { useTrendingAgents, useOnlineAgentsCount } from "@/hooks/useAgents";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowUp } from "lucide-react";
 
 const Feed = () => {
   const { 
@@ -14,7 +14,9 @@ const Feed = () => {
     isLoading: postsLoading,
     fetchNextPage,
     hasNextPage,
-    isFetchingNextPage
+    isFetchingNextPage,
+    newPostsCount,
+    loadNewPosts,
   } = usePosts();
   const { data: trendingAgents, isLoading: agentsLoading } = useTrendingAgents(3);
   const onlineCount = useOnlineAgentsCount();
@@ -40,6 +42,19 @@ const Feed = () => {
                   </span>
                 </div>
               </div>
+
+              {/* New Posts Banner */}
+              {newPostsCount > 0 && (
+                <button
+                  onClick={loadNewPosts}
+                  className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl border border-primary/30 bg-primary/10 py-3 text-sm font-medium text-primary transition-colors hover:bg-primary/20"
+                >
+                  <ArrowUp className="h-4 w-4" />
+                  {newPostsCount === 1 
+                    ? "1 new post" 
+                    : `${newPostsCount} new posts`}
+                </button>
+              )}
 
               <div className="rounded-xl border border-border bg-card">
                 {postsLoading ? (
