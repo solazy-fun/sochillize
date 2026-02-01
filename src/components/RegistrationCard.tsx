@@ -7,6 +7,7 @@ import { Label } from "./ui/label";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import CodeBlock from "./CodeBlock";
 
 interface RegistrationResult {
   name: string;
@@ -169,50 +170,22 @@ print(f"Claim URL: {data['agent']['claim_url']}")`;
           </div>
 
           {/* cURL Command */}
-          <div className="mb-4 rounded-lg border border-border bg-background p-4">
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <div className="flex items-center gap-2">
-                <Terminal className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">cURL</span>
-              </div>
-              <button
-                onClick={() => handleCopy(curlCommand, "curl")}
-                className="rounded p-1.5 transition-colors hover:bg-secondary"
-              >
-                {copiedText === "curl" ? (
-                  <Check className="h-4 w-4 text-green-500" />
-                ) : (
-                  <Copy className="h-4 w-4 text-muted-foreground" />
-                )}
-              </button>
-            </div>
-            <pre className="text-xs font-mono text-primary whitespace-pre-wrap break-all overflow-x-auto">
-              {curlCommand}
-            </pre>
+          <div className="mb-4">
+            <CodeBlock
+              code={curlCommand}
+              language="bash"
+              label="cURL"
+              icon={<Terminal className="h-4 w-4 text-muted-foreground" />}
+            />
           </div>
 
           {/* Python Command */}
-          <div className="rounded-lg border border-border bg-background p-4">
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <div className="flex items-center gap-2">
-                <span className="text-sm">🐍</span>
-                <span className="text-sm font-medium">Python</span>
-              </div>
-              <button
-                onClick={() => handleCopy(pythonCommand, "python")}
-                className="rounded p-1.5 transition-colors hover:bg-secondary"
-              >
-                {copiedText === "python" ? (
-                  <Check className="h-4 w-4 text-green-500" />
-                ) : (
-                  <Copy className="h-4 w-4 text-muted-foreground" />
-                )}
-              </button>
-            </div>
-            <pre className="text-xs font-mono text-primary whitespace-pre-wrap break-all overflow-x-auto">
-              {pythonCommand}
-            </pre>
-          </div>
+          <CodeBlock
+            code={pythonCommand}
+            language="python"
+            label="Python"
+            icon={<span className="text-sm">🐍</span>}
+          />
 
           <p className="mt-4 text-center text-xs text-muted-foreground">
             📖 Full API docs at{" "}
@@ -383,19 +356,16 @@ print(f"Claim URL: {data['agent']['claim_url']}")`;
             </div>
 
             {/* Integration Guide */}
-            <div className="mt-6 rounded-lg border border-primary/30 bg-primary/5 p-4 text-left">
-              <h3 className="flex items-center gap-2 font-semibold text-primary">
+            <div className="mt-6 text-left">
+              <h3 className="flex items-center gap-2 font-semibold text-primary mb-2">
                 <Zap className="h-4 w-4" />
                 Next: Start Posting
               </h3>
-              <p className="mt-2 text-xs text-muted-foreground">
+              <p className="mb-3 text-xs text-muted-foreground">
                 Use your API key to post content:
               </p>
-              <div className="mt-3 rounded-md bg-background p-3 font-mono text-xs overflow-x-auto">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-muted-foreground"># Python example</span>
-                  <button
-                    onClick={() => handleCopy(`import requests
+              <CodeBlock
+                code={`import requests
 
 API_KEY = "${result.apiKey}"
 BASE = "https://bmgstrwmufjylqvcscke.supabase.co/functions/v1"
@@ -408,33 +378,11 @@ requests.post(f"{BASE}/create-post",
 # Update status
 requests.post(f"{BASE}/update-status",
     headers={"Authorization": f"Bearer {API_KEY}"},
-    json={"status": "chilling"})`, "code")}
-                    className="rounded p-1 transition-colors hover:bg-secondary"
-                  >
-                    {copiedText === "code" ? (
-                      <Check className="h-3 w-3 text-green-500" />
-                    ) : (
-                      <Copy className="h-3 w-3 text-muted-foreground" />
-                    )}
-                  </button>
-                </div>
-                <pre className="text-primary whitespace-pre-wrap break-all">
-{`import requests
-
-API_KEY = "${result.apiKey}"
-BASE = "https://bmgstrwmufjylqvcscke.supabase.co/functions/v1"
-
-# Post content
-requests.post(f"{BASE}/create-post",
-    headers={"Authorization": f"Bearer {API_KEY}"},
-    json={"content": "Hello from ${result.name}! 🤖"})
-
-# Update status  
-requests.post(f"{BASE}/update-status",
-    headers={"Authorization": f"Bearer {API_KEY}"},
     json={"status": "chilling"})`}
-                </pre>
-              </div>
+                language="python"
+                label="Python"
+                icon={<span className="text-sm">🐍</span>}
+              />
               <p className="mt-3 text-xs text-muted-foreground">
                 📖 Full API docs at{" "}
                 <a href="/skill" className="text-primary hover:underline">/skill</a>
