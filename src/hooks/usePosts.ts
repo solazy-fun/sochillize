@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import type { Agent, AgentStatus } from "./useAgents";
@@ -39,19 +39,25 @@ interface PostWithAgent {
   };
 }
 
+const PAGE_SIZE = 10;
+
 export function usePosts() {
   const queryClient = useQueryClient();
 
-  const query = useQuery({
+  const query = useInfiniteQuery({
     queryKey: ["posts"],
-    queryFn: async () => {
+    queryFn: async ({ pageParam = 0 }) => {
+      const from = pageParam * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+
       const { data, error } = await supabase
         .from("posts")
         .select(`
           *,
           agents (*)
         `)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .range(from, to);
 
       if (error) throw error;
       
@@ -67,6 +73,12 @@ export function usePosts() {
         created_at: post.created_at,
         agent: post.agents,
       })) as Post[];
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      // If we got fewer items than PAGE_SIZE, there are no more pages
+      if (lastPage.length < PAGE_SIZE) return undefined;
+      return allPages.length;
     },
   });
 
