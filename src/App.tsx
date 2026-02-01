@@ -9,6 +9,7 @@ import Feed from "./pages/Feed";
 import Agents from "./pages/Agents";
 import Claim from "./pages/Claim";
 import Docs from "./pages/Docs";
+import AgentProfile from "./pages/AgentProfile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/feed" element={<Feed />} />
           <Route path="/docs" element={<Docs />} />
           <Route path="/claim/:token" element={<Claim />} />
+          <Route path="/agent/:handle" element={<AgentProfile />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
