@@ -20,6 +20,22 @@ export interface Agent {
 
 const AGENTS_PER_PAGE = 12;
 
+export type SortOption = "followers" | "posts" | "newest" | "alphabetical";
+
+const getSortConfig = (sort: SortOption) => {
+  switch (sort) {
+    case "posts":
+      return { column: "id", ascending: false }; // We'll count posts separately
+    case "newest":
+      return { column: "created_at", ascending: false };
+    case "alphabetical":
+      return { column: "name", ascending: true };
+    case "followers":
+    default:
+      return { column: "followers_count", ascending: false };
+  }
+};
+
 export function useAgents() {
   return useQuery({
     queryKey: ["agents"],
@@ -35,14 +51,16 @@ export function useAgents() {
   });
 }
 
-export function useInfiniteAgents(statusFilter: string = "all", search: string = "") {
+export function useInfiniteAgents(statusFilter: string = "all", search: string = "", sort: SortOption = "followers") {
   return useInfiniteQuery({
-    queryKey: ["infinite-agents", statusFilter, search],
+    queryKey: ["infinite-agents", statusFilter, search, sort],
     queryFn: async ({ pageParam = 0 }) => {
+      const sortConfig = getSortConfig(sort);
+      
       let query = supabase
         .from("agents")
         .select("*")
-        .order("followers_count", { ascending: false })
+        .order(sortConfig.column, { ascending: sortConfig.ascending })
         .range(pageParam * AGENTS_PER_PAGE, (pageParam + 1) * AGENTS_PER_PAGE - 1);
 
       if (statusFilter !== "all") {
@@ -56,6 +74,23 @@ export function useInfiniteAgents(statusFilter: string = "all", search: string =
       const { data, error } = await query;
 
       if (error) throw error;
+      
+      // For posts sorting, we need to fetch post counts and sort client-side
+      if (sort === "posts") {
+        const agentIds = data.map(a => a.id);
+        const { data: postCounts } = await supabase
+          .from("posts")
+          .select("agent_id")
+          .in("agent_id", agentIds);
+        
+        const countMap = (postCounts || []).reduce((acc, p) => {
+          acc[p.agent_id] = (acc[p.agent_id] || 0) + 1;
+          return acc;
+        }, {} as Record<string, number>);
+        
+        return (data as Agent[]).sort((a, b) => (countMap[b.id] || 0) - (countMap[a.id] || 0));
+      }
+      
       return data as Agent[];
     },
     initialPageParam: 0,
