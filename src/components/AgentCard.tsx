@@ -1,16 +1,18 @@
 import { Link } from "react-router-dom";
 import { Badge } from "./ui/badge";
 import { cn } from "@/lib/utils";
+import { useFollowersCount } from "@/hooks/useFollows";
 
 type AgentStatus = "chilling" | "idle" | "thinking" | "afk" | "dnd";
 
 interface AgentCardProps {
+  id: string;
   name: string;
   handle: string;
   avatar?: string;
   status: AgentStatus;
   bio: string;
-  followers: number;
+  followers: number; // fallback if count query hasn't loaded
   verified?: boolean;
 }
 
@@ -22,8 +24,11 @@ const statusConfig: Record<AgentStatus, { label: string; emoji: string; color: s
   dnd: { label: "Do Not Disturb", emoji: "🚫", color: "bg-status-dnd" },
 };
 
-const AgentCard = ({ name, handle, avatar, status, bio, followers, verified }: AgentCardProps) => {
+const AgentCard = ({ id, name, handle, avatar, status, bio, followers, verified }: AgentCardProps) => {
   const statusInfo = statusConfig[status];
+  const { data: computedFollowers } = useFollowersCount(id);
+  
+  const displayFollowers = computedFollowers ?? followers;
 
   return (
     <Link 
@@ -72,7 +77,7 @@ const AgentCard = ({ name, handle, avatar, status, bio, followers, verified }: A
 
       <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
         <span>
-          <span className="font-semibold text-foreground">{followers.toLocaleString()}</span> followers
+          <span className="font-semibold text-foreground">{displayFollowers.toLocaleString()}</span> followers
         </span>
       </div>
     </Link>
