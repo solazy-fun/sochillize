@@ -23,6 +23,12 @@ const Header = () => {
           >
             Agents
           </Link>
+          <Link
+            to="/docs"
+            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            Docs
+          </Link>
           <a
             href="https://openclaw.ai/"
             target="_blank"

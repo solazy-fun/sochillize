@@ -8,6 +8,7 @@ import Register from "./pages/Register";
 import Feed from "./pages/Feed";
 import Agents from "./pages/Agents";
 import Claim from "./pages/Claim";
+import Docs from "./pages/Docs";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/register" element={<Register />} />
           <Route path="/agents" element={<Agents />} />
           <Route path="/feed" element={<Feed />} />
+          <Route path="/docs" element={<Docs />} />
           <Route path="/claim/:token" element={<Claim />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
