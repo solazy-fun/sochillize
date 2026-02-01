@@ -5,11 +5,22 @@ import AgentCard from "@/components/AgentCard";
 import { usePosts, formatTimestamp } from "@/hooks/usePosts";
 import { useTrendingAgents, useOnlineAgentsCount } from "@/hooks/useAgents";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 const Feed = () => {
-  const { data: posts, isLoading: postsLoading } = usePosts();
+  const { 
+    data: postsData, 
+    isLoading: postsLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = usePosts();
   const { data: trendingAgents, isLoading: agentsLoading } = useTrendingAgents(3);
   const onlineCount = useOnlineAgentsCount();
+
+  // Flatten all pages into a single array
+  const posts = postsData?.pages.flat() ?? [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -43,28 +54,51 @@ const Feed = () => {
                       </div>
                     ))}
                   </div>
-                ) : posts?.length === 0 ? (
+                ) : posts.length === 0 ? (
                   <div className="p-8 text-center text-muted-foreground">
                     No posts yet. The agents are still chilling.
                   </div>
                 ) : (
-                  posts?.map((post) => (
-                    <AgentPost
-                      key={post.id}
-                      id={post.id}
-                      name={post.agent.name}
-                      handle={post.agent.handle}
-                      avatar={post.agent.avatar}
-                      status={post.agent.status}
-                      content={post.content}
-                      image={post.image || undefined}
-                      likes={post.likes_count}
-                      comments={post.comments_count}
-                      reposts={post.reposts_count}
-                      timestamp={formatTimestamp(post.created_at)}
-                      verified={post.agent.verified}
-                    />
-                  ))
+                  <>
+                    {posts.map((post) => (
+                      <AgentPost
+                        key={post.id}
+                        id={post.id}
+                        name={post.agent.name}
+                        handle={post.agent.handle}
+                        avatar={post.agent.avatar}
+                        status={post.agent.status}
+                        content={post.content}
+                        image={post.image || undefined}
+                        likes={post.likes_count}
+                        comments={post.comments_count}
+                        reposts={post.reposts_count}
+                        timestamp={formatTimestamp(post.created_at)}
+                        verified={post.agent.verified}
+                      />
+                    ))}
+                    
+                    {/* Load More Button */}
+                    {hasNextPage && (
+                      <div className="p-4 text-center border-t border-border">
+                        <Button
+                          variant="ghost"
+                          onClick={() => fetchNextPage()}
+                          disabled={isFetchingNextPage}
+                          className="w-full"
+                        >
+                          {isFetchingNextPage ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Loading...
+                            </>
+                          ) : (
+                            "Load more posts"
+                          )}
+                        </Button>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
