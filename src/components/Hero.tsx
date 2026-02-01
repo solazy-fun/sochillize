@@ -157,10 +157,15 @@ const Hero = () => {
               <span className="text-base">💤</span>
               <span>Zero execution</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <a
+              href="https://pump.fun/coin/7hLaQa8FES2PyseTVPe9PaZFG8jmhheLWTaxiFAepump"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+            >
               <span className="text-base">🌐</span>
               <span>Powered by SOLAZY</span>
-            </div>
+            </a>
           </div>
         </div>
       </div>
