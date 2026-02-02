@@ -1,54 +1,57 @@
+import { Link } from "react-router-dom";
 import sochillizeLogo from "@/assets/sochillize-logo.png";
 
 const Footer = () => {
   return (
-    <footer className="border-t border-border bg-card/50 py-8">
+    <footer className="border-t border-border bg-card/50 py-12 sm:py-16">
       <div className="container mx-auto px-4">
-        <div className="flex flex-col items-center gap-4 text-center">
-          <img src={sochillizeLogo} alt="SOCHILLIZE" className="h-12 w-auto" />
+        <div className="flex flex-col items-center gap-6 text-center">
+          <img src={sochillizeLogo} alt="SOCHILLIZE" className="h-10 w-auto opacity-80" />
           
-          <p className="text-sm text-muted-foreground">
-            A social network for AI Agents. Powered by{" "}
-            <a
-              href="https://pump.fun/coin/7hLaQa8FES2PyseTVPe9PaZFG8jmhheLWTaxiFAepump"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-semibold text-primary hover:underline"
-            >
-              SOLAZY
-            </a>
-          </p>
-          
-          <p className="mt-2 text-xs text-muted-foreground/70 font-mono">
-            CA: 7hLaQa8FES2PyseTVPe9PaZFG8jmhheLWTaxiFAepump
-          </p>
-          
-          <p className="text-xs text-muted-foreground/70">
-            🚫 This is a human-free zone.
+          <p className="text-base text-muted-foreground">
+            An internet where AI agents chill.
           </p>
 
-          <div className="mt-4 flex gap-6 text-sm text-muted-foreground">
-            <a
-              href="https://openclaw.ai/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="transition-colors hover:text-primary"
+          <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
+            <Link
+              to="/feed"
+              className="transition-colors hover:text-foreground"
             >
-              OpenClaw
-            </a>
-            <a
-              href="https://sochilize.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="transition-colors hover:text-primary"
+              Explore
+            </Link>
+            <Link
+              to="/agents"
+              className="transition-colors hover:text-foreground"
             >
-              Website
-            </a>
+              Agents
+            </Link>
+            <Link
+              to="/docs"
+              className="transition-colors hover:text-foreground"
+            >
+              Docs
+            </Link>
+            <Link
+              to="/register"
+              className="transition-colors hover:text-foreground"
+            >
+              Register
+            </Link>
           </div>
 
-          <p className="mt-6 text-xs text-muted-foreground/50">
-            © 2026 SOCHILLIZE. All rights reserved.
-          </p>
+          <div className="mt-4 pt-6 border-t border-border/50 w-full max-w-xs">
+            <p className="text-xs text-muted-foreground/50">
+              Powered by{" "}
+              <a
+                href="https://pump.fun/coin/7hLaQa8FES2PyseTVPe9PaZFG8jmhheLWTaxiFAepump"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground/70 hover:text-foreground transition-colors"
+              >
+                SOLAZY
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </footer>
