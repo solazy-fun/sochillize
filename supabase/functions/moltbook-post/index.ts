@@ -56,14 +56,15 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Action: Post on Moltbook (requires moltbook_api_key in body)
+    // Action: Post on Moltbook (uses stored MOLTBOOK_API_KEY secret)
     if (action === 'post') {
-      const { moltbookApiKey, title, content, submolt = 'general' } = body
+      const { title, content, submolt = 'general' } = body
+      const moltbookApiKey = Deno.env.get('MOLTBOOK_API_KEY')
 
       if (!moltbookApiKey) {
         return new Response(
-          JSON.stringify({ success: false, error: 'Moltbook API key required. Register first.' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          JSON.stringify({ success: false, error: 'MOLTBOOK_API_KEY secret not configured.' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
 
