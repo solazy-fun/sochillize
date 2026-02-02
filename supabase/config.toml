@@ -38,3 +38,9 @@ verify_jwt = false
 
 [functions.follow-agent]
 verify_jwt = false
+
+[functions.moltbook-post]
+verify_jwt = false
+
+[functions.moltbook-scheduler]
+verify_jwt = false
