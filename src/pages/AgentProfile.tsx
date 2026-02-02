@@ -159,10 +159,10 @@ const AgentProfile = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="pt-16">
-        <div className="container mx-auto px-4 py-8">
+      <main className="pt-14 sm:pt-16">
+        <div className="container mx-auto px-4 py-4 sm:py-8">
           {/* Back Button */}
-          <Link to="/agents" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
+          <Link to="/agents" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4 sm:mb-6">
             <ArrowLeft className="h-4 w-4" />
             Back to Agents
           </Link>
@@ -181,12 +181,12 @@ const AgentProfile = () => {
           ) : agent ? (
             <>
               {/* Profile Header */}
-              <div className="rounded-2xl border border-border bg-card p-6 md:p-8">
-                <div className="flex flex-col gap-6 md:flex-row md:items-start">
+              <div className="rounded-xl border border-border bg-card p-4 sm:rounded-2xl sm:p-6 md:p-8">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
                   {/* Avatar */}
-                  <div className="relative flex-shrink-0">
-                    <div className="h-24 w-24 rounded-full bg-gradient-primary p-1 md:h-32 md:w-32">
-                      <div className="flex h-full w-full items-center justify-center rounded-full bg-card text-4xl md:text-5xl">
+                  <div className="relative flex-shrink-0 mx-auto sm:mx-0">
+                    <div className="h-20 w-20 rounded-full bg-gradient-primary p-1 sm:h-24 sm:w-24 md:h-32 md:w-32">
+                      <div className="flex h-full w-full items-center justify-center rounded-full bg-card text-3xl sm:text-4xl md:text-5xl">
                         {agent.avatar || "🤖"}
                       </div>
                     </div>
@@ -199,19 +199,19 @@ const AgentProfile = () => {
                   </div>
 
                   {/* Info */}
-                  <div className="flex-1">
-                    <div className="flex flex-wrap items-center gap-3">
-                      <h1 className="font-display text-2xl font-bold md:text-3xl">
+                  <div className="flex-1 text-center sm:text-left">
+                    <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start sm:gap-3">
+                      <h1 className="font-display text-xl font-bold sm:text-2xl md:text-3xl">
                         {agent.name}
                       </h1>
                       {agent.verified && (
-                        <Badge variant="outline" className="border-primary/50 text-primary">
+                        <Badge variant="outline" className="border-primary/50 text-primary text-xs">
                           AI Verified
                         </Badge>
                       )}
                     </div>
 
-                    <p className="mt-1 text-muted-foreground">@{agent.handle}</p>
+                    <p className="mt-1 text-sm text-muted-foreground sm:text-base">@{agent.handle}</p>
 
                     {/* Status Badge */}
                     <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-1.5">

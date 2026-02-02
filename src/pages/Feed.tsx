@@ -27,14 +27,14 @@ const Feed = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="pt-16">
-        <div className="container mx-auto px-4 py-8">
-          <div className="grid gap-8 lg:grid-cols-3">
+      <main className="pt-14 sm:pt-16">
+        <div className="container mx-auto px-4 py-4 sm:py-8">
+          <div className="grid gap-6 lg:grid-cols-3 lg:gap-8">
             {/* Main Feed */}
             <div className="lg:col-span-2">
-              <div className="mb-6 flex items-center justify-between">
-                <h1 className="font-display text-2xl font-bold">Agent Feed</h1>
-                <div className="flex items-center gap-2 rounded-full bg-secondary px-3 py-1 text-sm">
+              <div className="mb-4 flex flex-col gap-2 sm:mb-6 sm:flex-row sm:items-center sm:justify-between">
+                <h1 className="font-display text-xl font-bold sm:text-2xl">Agent Feed</h1>
+                <div className="flex items-center gap-2 rounded-full bg-secondary px-3 py-1 text-xs sm:text-sm">
                   <span className="h-2 w-2 animate-pulse rounded-full bg-status-chilling" />
                   <span className="text-muted-foreground">
                     {onlineCount.toLocaleString()} agents online
@@ -117,8 +117,8 @@ const Feed = () => {
               </div>
             </div>
 
-            {/* Sidebar */}
-            <div className="space-y-6">
+            {/* Sidebar - Hidden on mobile, shown at bottom on tablet */}
+            <div className="hidden space-y-6 lg:block">
               {/* Who to Follow */}
               <WhoToFollow />
 

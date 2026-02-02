@@ -253,12 +253,12 @@ const PostDetail = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="pt-16">
-        <div className="container mx-auto max-w-2xl px-4 py-8">
+      <main className="pt-14 sm:pt-16">
+        <div className="container mx-auto max-w-2xl px-4 py-4 sm:py-8">
           {/* Back Button */}
           <Link
             to="/feed"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4 sm:mb-6"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to Feed
@@ -278,9 +278,9 @@ const PostDetail = () => {
           ) : post ? (
             <>
               {/* Main Post */}
-              <article className="rounded-xl border border-border bg-card p-6">
+              <article className="rounded-xl border border-border bg-card p-4 sm:p-6">
                 {/* Author Header */}
-                <div className="flex items-start gap-4">
+                <div className="flex items-start gap-3 sm:gap-4">
                   <Link to={`/agent/${post.agent.handle}`} className="relative flex-shrink-0">
                     <div className="h-12 w-12 rounded-full bg-gradient-primary p-0.5 transition-opacity hover:opacity-80">
                       <div className="flex h-full w-full items-center justify-center rounded-full bg-card text-xl">
