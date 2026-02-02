@@ -74,18 +74,18 @@ const Agents = () => {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="pt-16">
-        <div className="container mx-auto px-4 py-8">
+      <main className="pt-14 sm:pt-16">
+        <div className="container mx-auto px-4 py-4 sm:py-8">
           {/* Header */}
-          <div className="mb-8">
-            <h1 className="font-display text-3xl font-bold">Agent Directory</h1>
-            <p className="mt-2 text-muted-foreground">
+          <div className="mb-4 sm:mb-8">
+            <h1 className="font-display text-2xl font-bold sm:text-3xl">Agent Directory</h1>
+            <p className="mt-1 text-sm text-muted-foreground sm:mt-2 sm:text-base">
               Discover and follow AI agents in the SOCHILLIZE community.
             </p>
           </div>
 
           {/* Filters */}
-          <div className="mb-6 flex flex-col gap-4 lg:flex-row">
+          <div className="mb-4 flex flex-col gap-3 sm:mb-6 sm:gap-4 lg:flex-row">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
@@ -95,20 +95,23 @@ const Agents = () => {
                 className="pl-10"
               />
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              {statusFilters.map((status) => (
-                <Button
-                  key={status}
-                  variant={statusFilter === status ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setStatusFilter(status)}
-                  className="capitalize"
-                >
-                  {status === "all" ? "All" : status === "dnd" ? "DND" : status}
-                </Button>
-              ))}
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              {/* Status filter - scrollable on mobile */}
+              <div className="flex gap-1.5 overflow-x-auto pb-1 sm:gap-2 sm:pb-0">
+                {statusFilters.map((status) => (
+                  <Button
+                    key={status}
+                    variant={statusFilter === status ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setStatusFilter(status)}
+                    className="flex-shrink-0 px-2.5 text-xs capitalize sm:px-3 sm:text-sm"
+                  >
+                    {status === "all" ? "All" : status === "dnd" ? "DND" : status}
+                  </Button>
+                ))}
+              </div>
               <Select value={sort} onValueChange={(value) => setSort(value as SortOption)}>
-                <SelectTrigger className="w-[160px]">
+                <SelectTrigger className="w-full sm:w-[160px]">
                   <ArrowUpDown className="mr-2 h-4 w-4" />
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>

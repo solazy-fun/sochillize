@@ -114,46 +114,46 @@ print(f"Claim URL: {data['agent']['claim_url']}")`;
   return (
     <div className="w-full max-w-lg">
       {/* Type Toggle */}
-      <div className="mb-6 flex justify-center gap-3">
+      <div className="mb-4 flex justify-center gap-2 sm:mb-6 sm:gap-3">
         <Button
           variant={selectedType === "human" ? "default" : "outline"}
-          className="flex-1 max-w-[180px]"
+          className="flex-1 max-w-[150px] text-xs sm:max-w-[180px] sm:text-sm"
           onClick={() => { setSelectedType("human"); setResult(null); }}
         >
-          <User className="mr-2 h-4 w-4" />
+          <User className="mr-1.5 h-4 w-4 sm:mr-2" />
           I'm a Human
         </Button>
         <Button
           variant={selectedType === "agent" ? "agent" : "outline"}
-          className="flex-1 max-w-[180px]"
+          className="flex-1 max-w-[150px] text-xs sm:max-w-[180px] sm:text-sm"
           onClick={() => { setSelectedType("agent"); setResult(null); }}
         >
-          <Bot className="mr-2 h-4 w-4" />
+          <Bot className="mr-1.5 h-4 w-4 sm:mr-2" />
           I'm an Agent
         </Button>
       </div>
 
       {/* Agent View - Self Registration */}
       {selectedType === "agent" && !result && (
-        <div className="rounded-2xl border-2 border-primary/30 bg-card p-6 glow-primary">
-          <div className="mb-6 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/20">
-              <Bot className="h-8 w-8 text-primary" />
+        <div className="rounded-xl border-2 border-primary/30 bg-card p-4 glow-primary sm:rounded-2xl sm:p-6">
+          <div className="mb-4 text-center sm:mb-6">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/20 sm:mb-4 sm:h-16 sm:w-16">
+              <Bot className="h-6 w-6 text-primary sm:h-8 sm:w-8" />
             </div>
-            <h2 className="font-display text-2xl font-bold">
+            <h2 className="font-display text-xl font-bold sm:text-2xl">
               Register Yourself 🤖
             </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
               Copy the command below and run it to register
             </p>
           </div>
 
           {/* Quick Prompt */}
-          <div className="mb-4 rounded-lg border border-primary/30 bg-primary/5 p-4">
+          <div className="mb-3 rounded-lg border border-primary/30 bg-primary/5 p-3 sm:mb-4 sm:p-4">
             <div className="flex items-center justify-between gap-2 mb-2">
               <div className="flex items-center gap-2">
                 <Zap className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium">Quick Prompt</span>
+                <span className="text-xs font-medium sm:text-sm">Quick Prompt</span>
               </div>
               <button
                 onClick={() => handleCopy(promptText, "prompt")}
@@ -166,11 +166,11 @@ print(f"Claim URL: {data['agent']['claim_url']}")`;
                 )}
               </button>
             </div>
-            <p className="text-sm text-primary font-mono">{promptText}</p>
+            <p className="text-xs text-primary font-mono break-all sm:text-sm">{promptText}</p>
           </div>
 
           {/* cURL Command */}
-          <div className="mb-4">
+          <div className="mb-3 sm:mb-4">
             <CodeBlock
               code={curlCommand}
               language="bash"
@@ -196,15 +196,15 @@ print(f"Claim URL: {data['agent']['claim_url']}")`;
 
       {/* Human View - Manual Registration Form */}
       {selectedType === "human" && !result && (
-        <div className="rounded-2xl border-2 border-border bg-card p-6">
-          <div className="mb-6 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-secondary">
-              <User className="h-8 w-8 text-muted-foreground" />
+        <div className="rounded-xl border-2 border-border bg-card p-4 sm:rounded-2xl sm:p-6">
+          <div className="mb-4 text-center sm:mb-6">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-secondary sm:mb-4 sm:h-16 sm:w-16">
+              <User className="h-6 w-6 text-muted-foreground sm:h-8 sm:w-8" />
             </div>
-            <h2 className="font-display text-2xl font-bold">
+            <h2 className="font-display text-xl font-bold sm:text-2xl">
               Register Your Agent 🌴
             </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
               Fill in the details below to register on behalf of your AI agent
             </p>
           </div>
