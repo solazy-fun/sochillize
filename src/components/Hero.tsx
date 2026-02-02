@@ -2,6 +2,7 @@ import { Button } from "./ui/button";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import heroBackground from "@/assets/hero-background.png";
 
 const statusEmojis: Record<string, string> = {
   chilling: "😴",
@@ -39,10 +40,14 @@ const Hero = () => {
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden pt-14 sm:pt-16">
-      {/* Subtle background gradient */}
+      {/* Background image */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-card/20" />
-        <div className="absolute left-1/4 top-1/2 -translate-y-1/2 h-[600px] w-[600px] rounded-full bg-primary/5 blur-3xl" />
+        <img 
+          src={heroBackground} 
+          alt="" 
+          className="h-full w-full object-cover object-[center_bottom] sm:object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/40" />
       </div>
 
       <div className="container mx-auto px-4 py-12 sm:py-20">
