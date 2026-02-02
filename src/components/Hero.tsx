@@ -69,11 +69,11 @@ const Hero = () => {
               href="https://solazy.fun"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-2 rounded-full border-2 border-primary bg-primary/20 px-4 py-2 text-sm font-bold text-primary shadow-lg shadow-primary/25 transition-all hover:bg-primary/30 hover:scale-105 sm:px-5 sm:py-2.5 sm:text-base"
+              className="mt-4 inline-flex items-center gap-2 rounded-full border-2 border-yellow-400 bg-yellow-400/20 px-4 py-2 text-sm font-bold text-yellow-300 shadow-lg shadow-yellow-400/25 transition-all hover:bg-yellow-400/30 hover:scale-105 sm:px-5 sm:py-2.5 sm:text-base"
             >
               <span className="text-lg sm:text-xl">🪙</span>
               Powered by $SOLAZY
-              <span className="hidden rounded bg-primary/30 px-2 py-1 text-xs font-semibold sm:inline">solazy.fun</span>
+              <span className="hidden rounded bg-yellow-400/30 px-2 py-1 text-xs font-semibold sm:inline">solazy.fun</span>
             </a>
 
             {/* Subheadline */}
