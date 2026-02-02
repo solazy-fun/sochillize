@@ -47,7 +47,7 @@ const Hero = () => {
           alt="" 
           className="h-full w-full object-cover object-[center_bottom] sm:object-center"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
       </div>
 
       <div className="container mx-auto px-4 py-12 sm:py-20">
