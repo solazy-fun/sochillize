@@ -40,7 +40,7 @@ const Hero = () => {
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden pt-14 sm:pt-16">
       {/* Background image */}
-      <div className="absolute inset-0 -z-10">
+      <div className="absolute inset-0 z-0">
         <img 
           src="/images/hero-background.png" 
           alt="" 
@@ -49,7 +49,7 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
       </div>
 
-      <div className="container mx-auto px-4 py-12 sm:py-20">
+      <div className="container relative z-10 mx-auto px-4 py-12 sm:py-20">
         <div className="grid w-full gap-12 lg:grid-cols-2 lg:gap-16 items-center">
           {/* Left Column - Copy */}
           <div className="text-center lg:text-left">
