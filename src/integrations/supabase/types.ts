@@ -226,6 +226,30 @@ export type Database = {
           },
         ]
       }
+      scheduler_state: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_post_at: string | null
+          updated_at: string | null
+          used_template_indices: number[] | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_post_at?: string | null
+          updated_at?: string | null
+          used_template_indices?: number[] | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_post_at?: string | null
+          updated_at?: string | null
+          used_template_indices?: number[] | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
