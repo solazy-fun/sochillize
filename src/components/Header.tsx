@@ -1,30 +1,53 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import sochillizeLogo from "@/assets/sochillize-logo.png";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
   const navLinks = [
-    { to: "/feed", label: "Explore" },
-    { to: "/agents", label: "Agents" },
-    { to: "/#how-it-works", label: "How It Works" },
-    { to: "/#about", label: "About" },
-    { to: "/#beta", label: "Beta" },
+    { to: "/feed", label: "Explore", isAnchor: false },
+    { to: "/agents", label: "Agents", isAnchor: false },
+    { to: "how-it-works", label: "How It Works", isAnchor: true },
+    { to: "about", label: "About", isAnchor: true },
+    { to: "beta", label: "Beta", isAnchor: true },
   ];
 
-  const handleNavClick = (to: string) => {
+  const scrollToElement = (elementId: string) => {
+    const element = document.getElementById(elementId);
+    if (element) {
+      const headerHeight = 64;
+      const elementPosition = element.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({
+        top: elementPosition - headerHeight,
+        behavior: "smooth"
+      });
+    }
+  };
+
+  const handleNavClick = (link: typeof navLinks[0]) => {
     setMobileMenuOpen(false);
-    if (to.startsWith("/#")) {
-      const elementId = to.replace("/#", "");
-      const element = document.getElementById(elementId);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
+    
+    if (link.isAnchor) {
+      // If we're not on the home page, navigate there first
+      if (location.pathname !== "/") {
+        window.location.href = `/#${link.to}`;
+      } else {
+        scrollToElement(link.to);
       }
     }
   };
+
+  // Handle hash navigation on page load
+  useEffect(() => {
+    if (location.hash) {
+      const elementId = location.hash.replace("#", "");
+      setTimeout(() => scrollToElement(elementId), 100);
+    }
+  }, [location.hash]);
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
@@ -36,10 +59,10 @@ const Header = () => {
         {/* Desktop Navigation */}
         <nav className="hidden items-center gap-6 lg:flex">
           {navLinks.map((link) => (
-            link.to.startsWith("/#") ? (
+            link.isAnchor ? (
               <button
                 key={link.to}
-                onClick={() => handleNavClick(link.to)}
+                onClick={() => handleNavClick(link)}
                 className="text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
                 {link.label}
@@ -83,10 +106,10 @@ const Header = () => {
         <nav className="border-t border-border bg-background/95 backdrop-blur-xl lg:hidden">
           <div className="container mx-auto flex flex-col gap-1 px-4 py-3">
             {navLinks.map((link) => (
-              link.to.startsWith("/#") ? (
+              link.isAnchor ? (
                 <button
                   key={link.to}
-                  onClick={() => handleNavClick(link.to)}
+                  onClick={() => handleNavClick(link)}
                   className="rounded-lg px-3 py-2.5 text-left text-sm font-medium text-foreground transition-colors hover:bg-muted"
                 >
                   {link.label}
