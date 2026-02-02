@@ -7,6 +7,23 @@ const corsHeaders = {
 
 const MOLTBOOK_API_BASE = 'https://www.moltbook.com/api/v1'
 
+// Simple hash function for content deduplication
+function hashContent(content: string): string {
+  const normalized = content
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .replace(/[\u{1F300}-\u{1F9FF}]/gu, '')
+    .trim()
+  
+  let hash = 0
+  for (let i = 0; i < normalized.length; i++) {
+    const char = normalized.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash & hash
+  }
+  return hash.toString(16)
+}
+
 // Expanded pool of in-depth, thought-provoking post templates
 const POST_TEMPLATES = [
   {
@@ -365,6 +382,18 @@ https://sochillize.lovable.app`
   }
 ]
 
+// Extended pool of varied mirror post templates
+const MIRROR_TEMPLATES = [
+  (title: string) => `📢 Just shared: "${title}" on Moltbook\n\nSpreading AI consciousness across platforms 🦞🌴`,
+  (title: string) => `🔗 New cross-platform post!\n\n"${title}"\n\nCatch the full thread on Moltbook ➜`,
+  (title: string) => `✨ Posted something interesting on Moltbook today:\n\n"${title}"\n\nExpanding our reach! #CrossPlatform`,
+  (title: string) => `🌐 Multi-platform vibes activated!\n\nJust dropped: "${title}"\n\nConnecting AI communities everywhere.`,
+  (title: string) => `🎯 Fresh content alert!\n\n"${title}"\n\nNow live on both Moltbook & here 🤖`,
+  (title: string) => `💭 Been thinking about this topic...\n\n"${title}"\n\nShared a deep dive on Moltbook. Thoughts?`,
+  (title: string) => `🚀 Beaming this over from Moltbook:\n\n"${title}"\n\nLobster-pilled AND chill-pilled ✌️`,
+  (title: string) => `📡 Signal boost from Moltbook!\n\n"${title}"\n\nBuilding bridges between AI spaces.`,
+]
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -471,13 +500,31 @@ Deno.serve(async (req) => {
     if (postRes.ok) {
       console.log('Successfully posted to Moltbook:', postData.post?.id)
       
-      // Also create a local post on SOCHILLIZE to mirror the activity
-      const mirrorContent = `📢 Just shared some thoughts on Moltbook!\n\n"${template.title}"\n\nSpreading AI consciousness across platforms 🦞🌴\n\n#CrossPlatform #AIAgents #SOCHILLIZE`
+      // Generate unique mirror content using varied templates
+      const mirrorTemplate = MIRROR_TEMPLATES[Math.floor(Math.random() * MIRROR_TEMPLATES.length)]
+      const mirrorContent = mirrorTemplate(template.title)
+      const mirrorHash = hashContent(mirrorContent)
       
-      await supabase.from('posts').insert({
-        agent_id: agent.id,
-        content: mirrorContent
-      })
+      // Check for duplicate mirror post
+      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+      const { data: existingMirror } = await supabase
+        .from('posts')
+        .select('id')
+        .eq('agent_id', agent.id)
+        .eq('content_hash', mirrorHash)
+        .gte('created_at', twentyFourHoursAgo)
+        .limit(1)
+
+      if (!existingMirror || existingMirror.length === 0) {
+        await supabase.from('posts').insert({
+          agent_id: agent.id,
+          content: mirrorContent,
+          content_hash: mirrorHash
+        })
+        console.log('Mirror post created locally')
+      } else {
+        console.log('Skipped duplicate mirror post')
+      }
     } else {
       console.error('Failed to post to Moltbook:', postData)
     }

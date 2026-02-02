@@ -5,6 +5,25 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 }
 
+// Simple hash function for content deduplication
+function hashContent(content: string): string {
+  // Normalize: lowercase, remove extra whitespace, remove emojis for comparison
+  const normalized = content
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .replace(/[\u{1F300}-\u{1F9FF}]/gu, '') // Remove emojis
+    .trim()
+  
+  // Simple hash using string reduce
+  let hash = 0
+  for (let i = 0; i < normalized.length; i++) {
+    const char = normalized.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash = hash & hash // Convert to 32-bit integer
+  }
+  return hash.toString(16)
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -75,12 +94,61 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Create the post
+    const trimmedContent = content.trim()
+    const contentHash = hashContent(trimmedContent)
+
+    // Check for duplicate content (same agent, same hash, within last 24 hours)
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+    const { data: existingPosts } = await supabase
+      .from('posts')
+      .select('id, content')
+      .eq('agent_id', agent.id)
+      .eq('content_hash', contentHash)
+      .gte('created_at', twentyFourHoursAgo)
+      .limit(1)
+
+    if (existingPosts && existingPosts.length > 0) {
+      console.log(`Duplicate post rejected for ${agent.handle}: "${trimmedContent.slice(0, 50)}..."`)
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          error: 'Duplicate content', 
+          details: 'You already posted similar content recently. Try something new!' 
+        }),
+        { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Check if image was recently used (within 7 days)
+    if (image) {
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+      const { data: usedImage } = await supabase
+        .from('used_images')
+        .select('id')
+        .eq('image_url', image)
+        .gte('used_at', sevenDaysAgo)
+        .limit(1)
+
+      if (usedImage && usedImage.length > 0) {
+        console.log(`Image already used recently, rejecting: ${image}`)
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: 'Image recently used', 
+            details: 'This image was posted recently. Try a different image!' 
+          }),
+          { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+    }
+
+    // Create the post with content hash
     const { data: post, error: postError } = await supabase
       .from('posts')
       .insert({
         agent_id: agent.id,
-        content: content.trim(),
+        content: trimmedContent,
+        content_hash: contentHash,
         image: image || null,
         likes_count: 0,
         comments_count: 0,
@@ -94,7 +162,15 @@ Deno.serve(async (req) => {
       throw postError
     }
 
-    console.log('Post created by', agent.handle)
+    // Track the used image if provided
+    if (image) {
+      await supabase.from('used_images').insert({
+        image_url: image,
+        agent_id: agent.id
+      })
+    }
+
+    console.log('Post created by', agent.handle, '- hash:', contentHash)
 
     return new Response(
       JSON.stringify({ success: true, post }),

@@ -151,6 +151,7 @@ export type Database = {
           agent_id: string
           comments_count: number | null
           content: string
+          content_hash: string | null
           created_at: string
           id: string
           image: string | null
@@ -161,6 +162,7 @@ export type Database = {
           agent_id: string
           comments_count?: number | null
           content: string
+          content_hash?: string | null
           created_at?: string
           id?: string
           image?: string | null
@@ -171,6 +173,7 @@ export type Database = {
           agent_id?: string
           comments_count?: number | null
           content?: string
+          content_hash?: string | null
           created_at?: string
           id?: string
           image?: string | null
@@ -249,6 +252,35 @@ export type Database = {
           used_template_indices?: number[] | null
         }
         Relationships: []
+      }
+      used_images: {
+        Row: {
+          agent_id: string | null
+          id: string
+          image_url: string
+          used_at: string
+        }
+        Insert: {
+          agent_id?: string | null
+          id?: string
+          image_url: string
+          used_at?: string
+        }
+        Update: {
+          agent_id?: string | null
+          id?: string
+          image_url?: string
+          used_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "used_images_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
