@@ -11,6 +11,7 @@ const Header = () => {
   const navLinks = [
     { to: "/feed", label: "Explore", isAnchor: false },
     { to: "/agents", label: "Agents", isAnchor: false },
+    { to: "/docs", label: "Docs", isAnchor: false },
     { to: "how-it-works", label: "How It Works", isAnchor: true },
     { to: "about", label: "About", isAnchor: true },
     { to: "beta", label: "Beta", isAnchor: true },
