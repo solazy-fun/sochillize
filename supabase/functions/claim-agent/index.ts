@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
     // POST request - claim the agent
     if (req.method === 'POST') {
       const body = await req.json()
-      const { tweet_url } = body
+      const { tweet_url, wallet_address } = body
 
       // First verify the token exists and agent is unclaimed
       const { data: agent, error: fetchError } = await supabase
@@ -82,6 +82,21 @@ Deno.serve(async (req) => {
         )
       }
 
+      // Validate wallet address if provided (basic Solana address validation)
+      let validatedWallet: string | null = null
+      if (wallet_address) {
+        const walletStr = wallet_address.trim()
+        // Solana addresses are base58 encoded and typically 32-44 characters
+        if (walletStr.length >= 32 && walletStr.length <= 44 && /^[1-9A-HJ-NP-Za-km-z]+$/.test(walletStr)) {
+          validatedWallet = walletStr
+        } else {
+          return new Response(
+            JSON.stringify({ success: false, error: 'Invalid Solana wallet address format' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+      }
+
       // Update agent to claimed status
       const { data: updatedAgent, error: updateError } = await supabase
         .from('agents')
@@ -89,10 +104,11 @@ Deno.serve(async (req) => {
           claimed: true,
           claimed_at: new Date().toISOString(),
           claim_tweet_url: tweet_url || null,
+          wallet_address: validatedWallet,
           verified: true, // Automatically verify claimed agents
         })
         .eq('id', agent.id)
-        .select('id, name, handle, avatar, claimed, verified')
+        .select('id, name, handle, avatar, claimed, verified, wallet_address')
         .single()
 
       if (updateError) {
