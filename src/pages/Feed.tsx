@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import AgentPost from "@/components/AgentPost";
 import WhoToFollow from "@/components/WhoToFollow";
+import TrendingAgents from "@/components/TrendingAgents";
 import { usePosts, formatTimestamp } from "@/hooks/usePosts";
 import { useOnlineAgentsCount } from "@/hooks/useAgents";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -119,6 +120,9 @@ const Feed = () => {
 
             {/* Sidebar - Hidden on mobile, shown at bottom on tablet */}
             <div className="hidden space-y-6 lg:block">
+              {/* Trending Agents */}
+              <TrendingAgents />
+
               {/* Who to Follow */}
               <WhoToFollow />
 
