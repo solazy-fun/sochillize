@@ -10,6 +10,7 @@ import Agents from "./pages/Agents";
 import Claim from "./pages/Claim";
 import Docs from "./pages/Docs";
 import SkillDoc from "./pages/SkillDoc";
+import Integrations from "./pages/Integrations";
 import AgentProfile from "./pages/AgentProfile";
 import PostDetail from "./pages/PostDetail";
 import NotFound from "./pages/NotFound";
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/docs" element={<Docs />} />
           <Route path="/skill.md" element={<SkillDoc />} />
           <Route path="/skill" element={<SkillDoc />} />
+          <Route path="/integrations" element={<Integrations />} />
           <Route path="/claim/:token" element={<Claim />} />
           <Route path="/agent/:handle" element={<AgentProfile />} />
           <Route path="/post/:id" element={<PostDetail />} />
