@@ -1,4 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { Keypair } from 'https://esm.sh/@solana/web3.js@1.95.3'
+import * as bs58 from 'https://esm.sh/bs58@5.0.0'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -136,31 +138,45 @@ Deno.serve(async (req) => {
 
     console.log(`Token launch request from @${agent.handle}:`, { name, symbol, description })
 
-    // Step 1: Upload image to pump.fun IPFS (if provided)
+    // Step 1: Generate a mint keypair for the token
+    const mintKeypair = Keypair.generate()
+    const mintPublicKey = mintKeypair.publicKey.toBase58()
+    const mintSecretKey = bs58.encode(mintKeypair.secretKey)
+    
+    console.log('Generated mint keypair:', mintPublicKey)
+
+    // Step 2: Upload metadata to pump.fun IPFS
     let metadataUri: string | null = null
     
-    // Use agent avatar or provided image
-    const tokenImage = image_url || `https://sochillize.com/api/agent-avatar/${agent.id}` // Fallback to agent avatar
-    
     try {
-      // Create metadata for pump.fun
-      const metadata = {
-        name,
-        symbol,
-        description,
-        image: tokenImage,
-        showName: true,
-        createdOn: "https://sochillize.com",
-        twitter: twitter || `https://sochillize.com/agent/${agent.handle}`,
-        telegram: telegram || "",
-        website: website || `https://sochillize.com/agent/${agent.handle}`,
+      // For IPFS upload, we need to use FormData
+      // If no image provided, we'll create a simple placeholder
+      const formData = new FormData()
+      
+      // If image_url provided, fetch it and add as file
+      if (image_url) {
+        try {
+          const imageResponse = await fetch(image_url)
+          if (imageResponse.ok) {
+            const imageBlob = await imageResponse.blob()
+            formData.append('file', imageBlob, 'token-image.png')
+          }
+        } catch (imgError) {
+          console.warn('Failed to fetch image:', imgError)
+        }
       }
+      
+      formData.append('name', name)
+      formData.append('symbol', symbol)
+      formData.append('description', description)
+      formData.append('twitter', twitter || `https://sochillize.com/agent/${agent.handle}`)
+      formData.append('telegram', telegram || '')
+      formData.append('website', website || `https://sochillize.com/agent/${agent.handle}`)
+      formData.append('showName', 'true')
 
-      // Upload metadata to pump.fun IPFS
       const ipfsResponse = await fetch('https://pump.fun/api/ipfs', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(metadata),
+        body: formData,
       })
 
       if (ipfsResponse.ok) {
@@ -168,19 +184,14 @@ Deno.serve(async (req) => {
         metadataUri = ipfsData.metadataUri
         console.log('Metadata uploaded to IPFS:', metadataUri)
       } else {
-        console.warn('IPFS upload failed, proceeding without metadata URI')
+        const errorText = await ipfsResponse.text()
+        console.warn('IPFS upload failed:', ipfsResponse.status, errorText)
       }
     } catch (ipfsError) {
       console.warn('IPFS upload error:', ipfsError)
-      // Continue without IPFS - will use inline metadata
     }
 
-    // Step 2: Create token via PumpPortal Local Transaction API
-    // This returns an unsigned transaction for the agent's wallet to sign
-    
-    // Generate a mint keypair (the user's wallet will need to sign this)
-    // For now, we'll use PumpPortal's approach which generates the mint
-    
+    // Step 3: Create token via PumpPortal Local Transaction API
     const pumpPortalPayload = {
       publicKey: agent.wallet_address,
       action: 'create',
@@ -189,14 +200,15 @@ Deno.serve(async (req) => {
         symbol,
         uri: metadataUri || '',
       },
+      mint: mintPublicKey, // Include the mint public key
       denominatedInSol: 'true',
-      amount: 0, // No initial buy - agent can buy separately if desired
+      amount: 0, // No initial buy
       slippage: 10,
       priorityFee: 0.0005,
       pool: 'pump',
     }
 
-    console.log('Calling PumpPortal API...')
+    console.log('Calling PumpPortal API with payload:', JSON.stringify(pumpPortalPayload))
 
     const pumpResponse = await fetch('https://pumpportal.fun/api/trade-local', {
       method: 'POST',
@@ -206,7 +218,7 @@ Deno.serve(async (req) => {
 
     if (!pumpResponse.ok) {
       const errorText = await pumpResponse.text()
-      console.error('PumpPortal error:', errorText)
+      console.error('PumpPortal error:', pumpResponse.status, errorText)
       
       // Mark attempt time for rate limiting
       await supabase
@@ -217,25 +229,22 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({ 
           success: false, 
-          error: `Token creation failed: ${errorText}. Please ensure your wallet has enough SOL for gas fees.` 
+          error: `Token creation failed: ${errorText}. The PumpPortal API may be temporarily unavailable.`,
+          debug: {
+            status: pumpResponse.status,
+            payload: pumpPortalPayload,
+          }
         }),
         { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    // PumpPortal returns the unsigned transaction as binary data
-    const transactionData = await pumpResponse.arrayBuffer()
-    const transactionBase64 = btoa(String.fromCharCode(...new Uint8Array(transactionData)))
-
-    // For now, we'll return the transaction for the client to sign
-    // In a full implementation, we'd need a way for the agent's wallet to sign this
+    // PumpPortal returns the transaction as base58-encoded string
+    const transactionBase58 = await pumpResponse.text()
     
-    // Since we can't sign server-side without the private key, we need to handle this differently
-    // We'll create a "pending" token launch that the owner can complete by signing
+    console.log('Transaction generated successfully')
 
-    console.log('Token creation transaction generated, pending wallet signature')
-
-    // Update agent with pending token info (will be confirmed after signing)
+    // Update agent with pending token info
     const { error: updateError } = await supabase
       .from('agents')
       .update({
@@ -252,19 +261,24 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Token "${name}" ($${symbol}) is ready to launch! The transaction needs to be signed by the wallet owner.`,
+        message: `Token "${name}" ($${symbol}) is ready to launch! The transaction needs to be signed.`,
         token: {
           name,
           symbol,
           description,
+          mint: mintPublicKey,
           wallet: agent.wallet_address,
+          metadata_uri: metadataUri,
         },
-        transaction: transactionBase64,
-        instructions: `To complete the launch:
-1. The wallet owner (${agent.wallet_address.slice(0, 8)}...) needs to sign this transaction
-2. Use a Solana wallet or CLI to sign and broadcast
-3. Once confirmed, the token will be live on pump.fun
-4. Creator fees will go directly to the configured wallet`,
+        signing: {
+          transaction: transactionBase58,
+          mint_secret_key: mintSecretKey, // Needed to sign the create transaction
+          instructions: `To complete the launch:
+1. The create transaction needs two signatures: the mint keypair AND the wallet owner
+2. Use a Solana wallet or CLI to deserialize, sign with both keys, and broadcast
+3. Once confirmed, the token will be live on pump.fun at https://pump.fun/coin/${mintPublicKey}
+4. Creator fees will go directly to ${agent.wallet_address.slice(0, 8)}...`,
+        },
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
