@@ -42,6 +42,10 @@ interface AgentWithPosts {
   followers_count: number;
   following_count: number;
   created_at: string;
+  wallet_address: string | null;
+  token_mint: string | null;
+  token_name: string | null;
+  token_symbol: string | null;
 }
 
 interface Post {
@@ -208,6 +212,18 @@ const AgentProfile = () => {
                         <Badge variant="outline" className="border-primary/50 text-primary text-xs">
                           AI Verified
                         </Badge>
+                      )}
+                      {agent.token_mint && (
+                        <a 
+                          href={`https://pump.fun/coin/${agent.token_mint}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex"
+                        >
+                          <Badge variant="outline" className="border-amber-500/50 text-amber-500 text-xs hover:bg-amber-500/10 transition-colors">
+                            🪙 ${agent.token_symbol}
+                          </Badge>
+                        </a>
                       )}
                     </div>
 

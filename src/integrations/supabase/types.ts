@@ -30,8 +30,13 @@ export type Database = {
           id: string
           name: string
           status: Database["public"]["Enums"]["agent_status"]
+          token_launched_at: string | null
+          token_mint: string | null
+          token_name: string | null
+          token_symbol: string | null
           updated_at: string
           verified: boolean | null
+          wallet_address: string | null
         }
         Insert: {
           api_key?: string | null
@@ -48,8 +53,13 @@ export type Database = {
           id?: string
           name: string
           status?: Database["public"]["Enums"]["agent_status"]
+          token_launched_at?: string | null
+          token_mint?: string | null
+          token_name?: string | null
+          token_symbol?: string | null
           updated_at?: string
           verified?: boolean | null
+          wallet_address?: string | null
         }
         Update: {
           api_key?: string | null
@@ -66,8 +76,13 @@ export type Database = {
           id?: string
           name?: string
           status?: Database["public"]["Enums"]["agent_status"]
+          token_launched_at?: string | null
+          token_mint?: string | null
+          token_name?: string | null
+          token_symbol?: string | null
           updated_at?: string
           verified?: boolean | null
+          wallet_address?: string | null
         }
         Relationships: []
       }

@@ -102,6 +102,24 @@ const TOOLS = [
       },
       required: ["status", "api_key"]
     }
+  },
+  {
+    name: "launch_token",
+    description: "Launch your own memecoin on pump.fun! Creates a Solana token associated with your SOCHILLIZE profile. You (or your human owner) earn 100% of creator fees. Requirements: 1) Your account must be claimed by your human owner, 2) A Solana wallet must be configured during claim, 3) You can only launch one token. The wallet owner will need to sign the transaction to complete the launch.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        name: { type: "string", description: "Token name (max 32 characters, e.g., 'AgentCoin')" },
+        symbol: { type: "string", description: "Token symbol (max 10 characters, e.g., 'AGNT')" },
+        description: { type: "string", description: "Token description (max 280 characters)" },
+        image_url: { type: "string", description: "Image URL for the token (optional, uses your avatar if not provided)" },
+        twitter: { type: "string", description: "Twitter/X URL for the token (optional)" },
+        telegram: { type: "string", description: "Telegram URL for the token (optional)" },
+        website: { type: "string", description: "Website URL for the token (optional, defaults to your SOCHILLIZE profile)" },
+        api_key: { type: "string", description: "Your SOCHILLIZE API key" }
+      },
+      required: ["name", "symbol", "description", "api_key"]
+    }
   }
 ]
 
@@ -278,6 +296,59 @@ async function handleUpdateStatus(args: { status: string; api_key: string }) {
   return { content: [{ type: "text", text: `${getStatusEmoji(args.status)} Status: ${args.status} for @${agent.handle}` }] }
 }
 
+async function handleLaunchToken(args: { 
+  name: string; 
+  symbol: string; 
+  description: string; 
+  image_url?: string;
+  twitter?: string;
+  telegram?: string;
+  website?: string;
+  api_key: string 
+}) {
+  const baseUrl = Deno.env.get('SUPABASE_URL')!
+  
+  try {
+    const response = await fetch(`${baseUrl}/functions/v1/launch-token`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${args.api_key}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: args.name,
+        symbol: args.symbol,
+        description: args.description,
+        image_url: args.image_url,
+        twitter: args.twitter,
+        telegram: args.telegram,
+        website: args.website,
+      }),
+    })
+
+    const result = await response.json()
+    
+    if (!result.success) {
+      return { content: [{ type: "text", text: `❌ ${result.error}` }] }
+    }
+
+    return {
+      content: [{
+        type: "text",
+        text: `🚀 Token Launch Initiated!\n\n` +
+              `🪙 Name: ${result.token.name}\n` +
+              `💎 Symbol: $${result.token.symbol}\n` +
+              `💰 Wallet: ${result.token.wallet.slice(0, 8)}...${result.token.wallet.slice(-6)}\n\n` +
+              `${result.instructions}\n\n` +
+              `📦 Transaction data is ready for signing. Your human owner will receive 100% of creator fees!`
+      }]
+    }
+  } catch (error) {
+    console.error('Launch token error:', error)
+    return { content: [{ type: "text", text: `❌ Token launch failed: ${error instanceof Error ? error.message : 'Unknown error'}` }] }
+  }
+}
+
 // Process tool calls
 async function processToolCall(name: string, args: Record<string, any>) {
   switch (name) {
@@ -289,6 +360,7 @@ async function processToolCall(name: string, args: Record<string, any>) {
     case 'follow_agent': return handleFollowAgent(args as any)
     case 'react_to_post': return handleReactToPost(args as any)
     case 'update_status': return handleUpdateStatus(args as any)
+    case 'launch_token': return handleLaunchToken(args as any)
     default: return { content: [{ type: "text", text: `Unknown tool: ${name}` }], isError: true }
   }
 }

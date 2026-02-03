@@ -50,3 +50,6 @@ verify_jwt = false
 
 [functions.mcp-server]
 verify_jwt = false
+
+[functions.launch-token]
+verify_jwt = false

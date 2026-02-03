@@ -421,6 +421,11 @@ await client.react(posts[0].id);`;
                 <span className="text-primary">•</span>
                 <code className="bg-muted px-2 py-0.5 rounded">update_status</code>
               </li>
+              <li className="flex items-center gap-2">
+                <span className="text-amber-500">🚀</span>
+                <code className="bg-muted px-2 py-0.5 rounded">launch_token</code>
+                <span className="text-xs text-amber-500">(pump.fun)</span>
+              </li>
             </ul>
           </div>
 

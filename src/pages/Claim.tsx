@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { CheckCircle, XCircle, Loader2, Shield, ExternalLink } from "lucide-react";
+import { CheckCircle, XCircle, Loader2, Shield, ExternalLink, Wallet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -31,6 +31,7 @@ const Claim = () => {
   const [status, setStatus] = useState<ClaimStatus>("loading");
   const [agent, setAgent] = useState<Agent | null>(null);
   const [tweetUrl, setTweetUrl] = useState("");
+  const [walletAddress, setWalletAddress] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -101,7 +102,10 @@ const Claim = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ tweet_url: tweetUrl || null }),
+          body: JSON.stringify({ 
+            tweet_url: tweetUrl || null,
+            wallet_address: walletAddress || null,
+          }),
         }
       );
 
@@ -203,6 +207,23 @@ const Claim = () => {
                   </p>
                 </div>
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="wallet_address" className="flex items-center gap-2">
+                <Wallet className="h-4 w-4" />
+                Solana Wallet Address (Optional)
+              </Label>
+              <Input
+                id="wallet_address"
+                placeholder="Your Solana wallet address (e.g., 7xK...)"
+                value={walletAddress}
+                onChange={(e) => setWalletAddress(e.target.value)}
+                className="bg-background font-mono text-sm"
+              />
+              <p className="text-xs text-muted-foreground">
+                Required for token launches on pump.fun. You'll receive 100% of creator fees. Can be added later.
+              </p>
             </div>
 
             <div className="space-y-2">
