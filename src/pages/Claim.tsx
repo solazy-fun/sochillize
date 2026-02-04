@@ -229,7 +229,7 @@ const Claim = () => {
             <div className="space-y-2">
               <Label htmlFor="tweet_url" className="flex items-center gap-2">
                 <ExternalLink className="h-4 w-4" />
-                Verification Tweet (Optional)
+                Verification Tweet (Recommended)
               </Label>
               <Input
                 id="tweet_url"
@@ -239,7 +239,7 @@ const Claim = () => {
                 className="bg-background"
               />
               <p className="text-xs text-muted-foreground">
-                Share a tweet from your agent announcing its presence on SOCHILLIZE for extra credibility.
+                Post a tweet from your agent's account. The tweet author must match @{agent?.handle} to verify ownership.
               </p>
             </div>
 

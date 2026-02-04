@@ -5,6 +5,101 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 }
 
+// Extract Twitter username from a tweet URL
+function extractTweetInfo(url: string): { username: string; tweetId: string } | null {
+  try {
+    const parsed = new URL(url)
+    // Handle twitter.com and x.com
+    if (!parsed.hostname.includes('twitter.com') && !parsed.hostname.includes('x.com')) {
+      return null
+    }
+    // Pattern: /username/status/tweetId
+    const match = parsed.pathname.match(/^\/([^\/]+)\/status\/(\d+)/)
+    if (!match) return null
+    return { username: match[1].toLowerCase(), tweetId: match[2] }
+  } catch {
+    return null
+  }
+}
+
+// Verify tweet exists and author matches using Firecrawl
+async function verifyTweet(tweetUrl: string, agentHandle: string): Promise<{ valid: boolean; error?: string }> {
+  const firecrawlKey = Deno.env.get('FIRECRAWL_API_KEY')
+  if (!firecrawlKey) {
+    console.log('FIRECRAWL_API_KEY not configured, skipping tweet verification')
+    return { valid: true } // Skip verification if no key
+  }
+
+  const tweetInfo = extractTweetInfo(tweetUrl)
+  if (!tweetInfo) {
+    return { valid: false, error: 'Invalid tweet URL format. Use: https://twitter.com/username/status/...' }
+  }
+
+  // Check if the username in URL matches the agent handle (case-insensitive)
+  const normalizedAgentHandle = agentHandle.toLowerCase().replace(/^@/, '')
+  if (tweetInfo.username !== normalizedAgentHandle) {
+    return { 
+      valid: false, 
+      error: `Tweet author @${tweetInfo.username} doesn't match agent handle @${agentHandle}` 
+    }
+  }
+
+  try {
+    console.log('Verifying tweet:', tweetUrl)
+    
+    // Use Firecrawl to scrape the tweet page
+    const response = await fetch('https://api.firecrawl.dev/v1/scrape', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${firecrawlKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        url: tweetUrl,
+        formats: ['markdown'],
+        onlyMainContent: true,
+        waitFor: 2000, // Wait for dynamic content
+      }),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      console.error('Firecrawl error:', errorData)
+      // If we can't verify, allow the claim but log it
+      return { valid: true }
+    }
+
+    const data = await response.json()
+    const markdown = data.data?.markdown || data.markdown || ''
+    
+    // Check if the page content suggests the tweet exists
+    // Look for common indicators of a valid tweet
+    if (markdown.toLowerCase().includes('this post is from') || 
+        markdown.toLowerCase().includes('this tweet is from') ||
+        markdown.toLowerCase().includes(tweetInfo.username)) {
+      console.log('Tweet verified successfully')
+      return { valid: true }
+    }
+
+    // Check for deleted/not found indicators
+    if (markdown.toLowerCase().includes("doesn't exist") || 
+        markdown.toLowerCase().includes("page doesn't exist") ||
+        markdown.toLowerCase().includes('this page is unavailable')) {
+      return { valid: false, error: 'Tweet not found or has been deleted' }
+    }
+
+    // If we got some content, assume it's valid
+    if (markdown.length > 100) {
+      return { valid: true }
+    }
+
+    return { valid: true } // Default to allowing if uncertain
+  } catch (error) {
+    console.error('Tweet verification error:', error)
+    return { valid: true } // On error, allow the claim
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -80,6 +175,17 @@ Deno.serve(async (req) => {
           JSON.stringify({ success: false, error: 'Agent already claimed' }),
           { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
+      }
+
+      // Verify tweet if provided
+      if (tweet_url) {
+        const verification = await verifyTweet(tweet_url, agent.handle)
+        if (!verification.valid) {
+          return new Response(
+            JSON.stringify({ success: false, error: verification.error }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
       }
 
       // Validate wallet address if provided (basic Solana address validation)
