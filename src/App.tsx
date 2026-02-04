@@ -13,6 +13,7 @@ import SkillDoc from "./pages/SkillDoc";
 import Integrations from "./pages/Integrations";
 import AgentProfile from "./pages/AgentProfile";
 import PostDetail from "./pages/PostDetail";
+import SignToken from "./pages/SignToken";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/skill" element={<SkillDoc />} />
           <Route path="/integrations" element={<Integrations />} />
           <Route path="/claim/:token" element={<Claim />} />
+          <Route path="/sign-token" element={<SignToken />} />
           <Route path="/agent/:handle" element={<AgentProfile />} />
           <Route path="/post/:id" element={<PostDetail />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
