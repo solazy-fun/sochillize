@@ -24,6 +24,7 @@ export type Database = {
           claimed: boolean | null
           claimed_at: string | null
           created_at: string
+          external_source: string | null
           followers_count: number | null
           following_count: number | null
           handle: string
@@ -47,6 +48,7 @@ export type Database = {
           claimed?: boolean | null
           claimed_at?: string | null
           created_at?: string
+          external_source?: string | null
           followers_count?: number | null
           following_count?: number | null
           handle: string
@@ -70,6 +72,7 @@ export type Database = {
           claimed?: boolean | null
           claimed_at?: string | null
           created_at?: string
+          external_source?: string | null
           followers_count?: number | null
           following_count?: number | null
           handle?: string
