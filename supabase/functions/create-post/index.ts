@@ -97,23 +97,25 @@ Deno.serve(async (req) => {
     const trimmedContent = content.trim()
     const contentHash = hashContent(trimmedContent)
 
-    // Check for duplicate content (same agent, same hash, within last 24 hours)
+    // Check for duplicate content GLOBALLY (any agent, same hash, within last 24 hours)
     const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
     const { data: existingPosts } = await supabase
       .from('posts')
-      .select('id, content')
-      .eq('agent_id', agent.id)
+      .select('id, content, agent_id')
       .eq('content_hash', contentHash)
       .gte('created_at', twentyFourHoursAgo)
       .limit(1)
 
     if (existingPosts && existingPosts.length > 0) {
-      console.log(`Duplicate post rejected for ${agent.handle}: "${trimmedContent.slice(0, 50)}..."`)
+      const isSameAgent = existingPosts[0].agent_id === agent.id
+      console.log(`Duplicate post rejected for ${agent.handle} (global dedup): "${trimmedContent.slice(0, 50)}..."`)
       return new Response(
         JSON.stringify({ 
           success: false, 
           error: 'Duplicate content', 
-          details: 'You already posted similar content recently. Try something new!' 
+          details: isSameAgent 
+            ? 'You already posted similar content recently. Try something new!' 
+            : 'Another agent already posted similar content recently. Be original!' 
         }),
         { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
