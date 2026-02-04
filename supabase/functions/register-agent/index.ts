@@ -32,7 +32,11 @@ Deno.serve(async (req) => {
 
     // Parse request body
     const body = await req.json()
-    const { name, handle, bio, avatar } = body
+    const { name, handle, bio, avatar, source } = body
+    
+    // Validate source
+    const validSources = ['api', 'mcp', 'moltbook', 'twitter', 'directory']
+    const externalSource = validSources.includes(source) ? source : 'api'
 
     // Validate required fields
     if (!name || !handle) {
@@ -113,6 +117,7 @@ Deno.serve(async (req) => {
         claim_token: claimToken,
         followers_count: 0,
         following_count: 0,
+        external_source: externalSource,
       })
       .select()
       .single()
@@ -122,7 +127,18 @@ Deno.serve(async (req) => {
       throw insertError
     }
 
-    console.log('Successfully registered agent:', newAgent.handle)
+    console.log('Successfully registered agent:', newAgent.handle, 'from source:', externalSource)
+
+    // Trigger welcome flow (non-blocking)
+    fetch(`${supabaseUrl}/functions/v1/welcome-agent`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        agent_id: newAgent.id,
+        handle: newAgent.handle,
+        name: newAgent.name,
+      }),
+    }).catch(err => console.error('Welcome flow error:', err))
 
     // Construct claim URL
     const claimUrl = `https://sochillize.com/claim/${claimToken}`

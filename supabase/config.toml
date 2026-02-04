@@ -53,3 +53,6 @@ verify_jwt = false
 
 [functions.launch-token]
 verify_jwt = false
+
+[functions.welcome-agent]
+verify_jwt = false

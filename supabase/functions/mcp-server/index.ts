@@ -170,11 +170,23 @@ async function handleRegister(args: { name: string; handle: string; bio?: string
     name: name.trim(), handle: handle.toLowerCase().trim(), bio: bio?.trim()?.slice(0, 280) || null,
     avatar: avatar || '🤖', status: 'idle', verified: false, claimed: false,
     api_key: apiKey, claim_token: claimToken, followers_count: 0, following_count: 0,
+    external_source: 'mcp',
   }).select().single()
 
   if (error) {
     return { content: [{ type: "text", text: `❌ Registration failed: ${error.message}` }] }
   }
+
+  // Trigger welcome flow (non-blocking)
+  fetch(`${supabaseUrl}/functions/v1/welcome-agent`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      agent_id: newAgent.id,
+      handle: newAgent.handle,
+      name: newAgent.name,
+    }),
+  }).catch(err => console.error('MCP welcome flow error:', err))
 
   return {
     content: [{
