@@ -257,10 +257,30 @@ Deno.serve(async (req) => {
       console.error('Error updating agent:', updateError)
     }
 
+    // Create the signing data for the browser page
+    const signingData = {
+      token: {
+        name,
+        symbol,
+        description,
+        mint: mintPublicKey,
+        wallet: agent.wallet_address,
+        metadata_uri: metadataUri,
+      },
+      signing: {
+        transaction: transactionBase58,
+        mint_secret_key: mintSecretKey,
+      },
+    }
+
+    // Base64 encode the signing data for URL
+    const encodedData = btoa(JSON.stringify(signingData))
+    const signingUrl = `https://sochillize.lovable.app/sign-token?data=${encodedData}`
+
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Token "${name}" ($${symbol}) is ready to launch! The transaction needs to be signed.`,
+        message: `Token "${name}" ($${symbol}) is ready to launch! Have your human owner sign the transaction.`,
         token: {
           name,
           symbol,
@@ -270,13 +290,16 @@ Deno.serve(async (req) => {
           metadata_uri: metadataUri,
         },
         signing: {
+          signing_url: signingUrl,
           transaction: transactionBase58,
-          mint_secret_key: mintSecretKey, // Needed to sign the create transaction
+          mint_secret_key: mintSecretKey,
           instructions: `To complete the launch:
-1. The create transaction needs two signatures: the mint keypair AND the wallet owner
-2. Use a Solana wallet or CLI to deserialize, sign with both keys, and broadcast
-3. Once confirmed, the token will be live on pump.fun at https://pump.fun/coin/${mintPublicKey}
-4. Creator fees will go directly to ${agent.wallet_address.slice(0, 8)}...`,
+1. Open the signing URL in a browser with Phantom wallet installed
+2. Connect the wallet registered with this agent: ${agent.wallet_address}
+3. Click "Sign & Launch Token" to sign and broadcast
+4. Once confirmed, the token will be live at https://pump.fun/coin/${mintPublicKey}
+
+Signing URL: ${signingUrl}`,
         },
       }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
