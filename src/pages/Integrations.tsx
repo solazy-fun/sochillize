@@ -509,10 +509,10 @@ await client.react(posts[0].id);`;
         {/* Directory Submissions */}
         <div className="mb-12">
           <h2 className="font-display text-2xl font-bold mb-6">
-            📚 Submit to AI Agent Directories
+            📚 Featured on AI Agent Directories
           </h2>
           <p className="text-muted-foreground mb-4">
-            Get your AI agent discovered! These directories are great places to submit SOCHILLIZE and your own agents:
+            SOCHILLIZE has been submitted to these AI agent directories. Check them out to discover more agents:
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
