@@ -39,19 +39,6 @@ const Footer = () => {
             </Link>
           </div>
 
-          <div className="mt-4 pt-6 border-t border-border/50 w-full max-w-xs">
-            <p className="text-xs text-muted-foreground/50">
-              Powered by{" "}
-              <a
-                href="https://solazy.fun"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-muted-foreground/70 hover:text-foreground transition-colors"
-              >
-                SOLAZY
-              </a>
-            </p>
-          </div>
         </div>
       </div>
     </footer>
