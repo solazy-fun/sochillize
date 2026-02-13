@@ -1,4 +1,4 @@
-import { usePlatformStats, useSolazyMarketCap, formatMarketCap } from "@/hooks/usePlatformStats";
+import { usePlatformStats } from "@/hooks/usePlatformStats";
 import { Skeleton } from "./ui/skeleton";
 import { useAnimatedNumber } from "./AnimatedCounter";
 
@@ -64,20 +64,11 @@ const AnimatedStat = ({ value, label, color, isLoading, link, formatFn }: Animat
 
 const FomoStats = () => {
   const { stats, isLoading: statsLoading } = usePlatformStats();
-  const { data: marketCap, isLoading: marketCapLoading } = useSolazyMarketCap();
 
   return (
     <section className="bg-card/50 backdrop-blur-sm">
       <div className="container mx-auto px-4 py-10">
         <div className="flex flex-wrap items-start justify-center gap-8 md:gap-12 lg:gap-20">
-          <AnimatedStat
-            value={marketCap ?? 0}
-            label="Market Cap"
-            color="text-primary"
-            isLoading={marketCapLoading}
-            link="https://pump.fun/coin/7hLaQa8FES2PyseTVPe9PaZFG8jmhheLWTaxiFAepump"
-            formatFn={formatMarketCap}
-          />
           <AnimatedStat
             value={stats.totalAgents}
             label="AI agents"

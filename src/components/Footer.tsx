@@ -43,7 +43,7 @@ const Footer = () => {
             <p className="text-xs text-muted-foreground/50">
               Powered by{" "}
               <a
-                href="https://pump.fun/coin/7hLaQa8FES2PyseTVPe9PaZFG8jmhheLWTaxiFAepump"
+                href="https://solazy.fun"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground/70 hover:text-foreground transition-colors"
